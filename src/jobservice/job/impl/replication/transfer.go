@@ -34,6 +34,7 @@ import (
 	"github.com/goharbor/harbor/src/jobservice/env"
 	job_utils "github.com/goharbor/harbor/src/jobservice/job/impl/utils"
 	"github.com/goharbor/harbor/src/jobservice/logger"
+	"github.com/goharbor/harbor/src/common/job"
 )
 
 var (
@@ -58,6 +59,11 @@ func (t *Transfer) ShouldRetry() bool {
 // MaxFails ...
 func (t *Transfer) MaxFails() uint {
 	return 3
+}
+
+// Priority ...
+func (t *Transfer) Priority() uint {
+	return job.JobPriorityNormal
 }
 
 // Validate ....

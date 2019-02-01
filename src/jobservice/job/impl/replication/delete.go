@@ -21,6 +21,7 @@ import (
 	"github.com/goharbor/harbor/src/common/utils/registry/auth"
 	"github.com/goharbor/harbor/src/jobservice/env"
 	"github.com/goharbor/harbor/src/jobservice/logger"
+	"github.com/goharbor/harbor/src/common/job"
 )
 
 // Deleter deletes repository or images on the destination registry
@@ -40,6 +41,11 @@ func (d *Deleter) ShouldRetry() bool {
 // MaxFails ...
 func (d *Deleter) MaxFails() uint {
 	return 3
+}
+
+// Priority implements the interface in job/Interface
+func (d *Deleter) Priority() uint {
+	return job.JobPriorityNormal
 }
 
 // Validate ....

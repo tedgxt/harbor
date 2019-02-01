@@ -82,6 +82,9 @@ func initRouters() {
 	beego.Router("/api/jobs/replication/:id([0-9]+)", &api.RepJobAPI{})
 	beego.Router("/api/jobs/replication/:id([0-9]+)/log", &api.RepJobAPI{}, "get:GetLog")
 	beego.Router("/api/jobs/scan/:id([0-9]+)/log", &api.ScanJobAPI{}, "get:GetLog")
+	beego.Router("/api/jobs/webhook/", &api.WebhookJobAPI{}, "get:List")
+	beego.Router("/api/jobs/webhook/:id([0-9]+)", &api.WebhookJobAPI{})
+	beego.Router("/api/jobs/webhook/:id([0-9]+)/log", &api.WebhookJobAPI{}, "get:GetLog")
 
 	beego.Router("/api/system/gc", &api.GCAPI{}, "get:List")
 	beego.Router("/api/system/gc/:id", &api.GCAPI{}, "get:GetGC")
@@ -89,8 +92,9 @@ func initRouters() {
 	beego.Router("/api/system/gc/schedule", &api.GCAPI{}, "get:Get;put:Put;post:Post")
 
 	beego.Router("/api/policies/replication/:id([0-9]+)", &api.RepPolicyAPI{})
-	beego.Router("/api/policies/replication", &api.RepPolicyAPI{}, "get:List")
-	beego.Router("/api/policies/replication", &api.RepPolicyAPI{}, "post:Post")
+	beego.Router("/api/policies/replication", &api.RepPolicyAPI{}, "get:List;post:Post")
+	beego.Router("/api/policies/webhook/:id([0-9]+)", &api.WebhookPolicyAPI{})
+	beego.Router("/api/policies/webhook", &api.WebhookPolicyAPI{}, "get:List;post:Post")
 	beego.Router("/api/targets/", &api.TargetAPI{}, "get:List")
 	beego.Router("/api/targets/", &api.TargetAPI{}, "post:Post")
 	beego.Router("/api/targets/:id([0-9]+)", &api.TargetAPI{})
@@ -120,6 +124,7 @@ func initRouters() {
 	beego.Router("/service/notifications/jobs/scan/:id([0-9]+)", &jobs.Handler{}, "post:HandleScan")
 	beego.Router("/service/notifications/jobs/replication/:id([0-9]+)", &jobs.Handler{}, "post:HandleReplication")
 	beego.Router("/service/notifications/jobs/adminjob/:id([0-9]+)", &admin.Handler{}, "post:HandleAdminJob")
+	beego.Router("/service/notifications/jobs/webhook/:id([0-9]+)", &jobs.Handler{}, "post:HandleWebhook")
 	beego.Router("/service/token", &token.Handler{})
 
 	beego.Router("/v2/*", &controllers.RegistryProxy{}, "*:Handle")

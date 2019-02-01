@@ -94,8 +94,18 @@ func hookMetrics(jobId int64, status, jobType string) {
 	stat := metrics.GlobalStatsManager.GetStat(metrics.PrometheusStats)
 	name := status + "_jobs"
 	stat.Tagged(map[string]string{
-		"service":   "core",
-		"module": "jobs",
-		"type":   jobType,
+		"service": "core",
+		"module":  "jobs",
+		"type":    jobType,
 	}).Counter(name).Inc(1)
+}
+
+// HandleWebhook handles the webhook of webhook job
+func (h *Handler) HandleWebhook() {
+	log.Debugf("received webhook job status update event: job-%d, status-%s", h.id, h.status)
+	if err := dao.UpdateWebhookJobStatus(h.id, h.status); err != nil {
+		log.Errorf("Failed to update job status, id: %d, status: %s", h.id, h.status)
+		h.HandleInternalServerError(err.Error())
+		return
+	}
 }

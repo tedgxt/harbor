@@ -9,4 +9,7 @@ const (
 
 	// StartReplicationTopic : Start application request
 	StartReplicationTopic = "StartReplication"
+
+	// StartWebhookTopic : Start webhook request
+	StartWebhookTopic = "StartWebhook"
 )

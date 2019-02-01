@@ -27,6 +27,7 @@ import (
 	"github.com/goharbor/harbor/src/common/dao"
 	"github.com/goharbor/harbor/src/jobservice/env"
 	"github.com/goharbor/harbor/src/jobservice/job/impl/utils"
+	"github.com/goharbor/harbor/src/common/job"
 )
 
 // All query the DB and Registry for all image and tags,
@@ -47,6 +48,11 @@ func (sa *All) MaxFails() uint {
 // ShouldRetry implements the interface in job/Interface
 func (sa *All) ShouldRetry() bool {
 	return false
+}
+
+// Priority implements the interface in job/Interface
+func (sa *All) Priority() uint {
+	return job.JobPriorityNormal
 }
 
 // Validate implements the interface in job/Interface

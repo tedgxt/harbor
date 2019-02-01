@@ -28,6 +28,9 @@ import (
 	"github.com/goharbor/harbor/src/replication/event/topic"
 	"github.com/goharbor/harbor/src/replication/models"
 	"github.com/goharbor/harbor/src/replication/trigger"
+	"github.com/goharbor/harbor/src/core/config"
+	"github.com/goharbor/harbor/src/webhook/controller"
+	"github.com/goharbor/harbor/src/webhook"
 )
 
 // OnPushHandler implements the notification handler interface to handle image on push event.
@@ -46,7 +49,26 @@ func (oph *OnPushHandler) Handle(value interface{}) error {
 
 	notification := value.(notification.OnPushNotification)
 
-	return checkAndTriggerReplication(notification.Image, common_models.RepOpTransfer)
+	handleResult := true
+	msg := fmt.Sprintf("image %s: ", notification.Image)
+	err := checkAndTriggerReplication(notification.Image, common_models.RepOpTransfer)
+	if err != nil {
+		handleResult = false
+		log.Error(err)
+		msg += "trigger replication failed;"
+	}
+
+	err = checkAndTriggerWebhook(notification.Image)
+	if err != nil {
+		handleResult = false
+		log.Error(err)
+		msg += "trigger webhook failed;"
+	}
+	if handleResult {
+		return nil
+	} else {
+		return fmt.Errorf("%s", msg)
+	}
 }
 
 // IsStateful implements the same method of notification handler interface
@@ -86,6 +108,58 @@ func checkAndTriggerReplication(image, operation string) error {
 		}
 		log.Infof("replication topic for resource %s, operation %s, policy %d triggered",
 			image, operation, watchItem.PolicyID)
+	}
+	return nil
+}
+
+func checkAndTriggerWebhook(image string) error {
+	project, _ := utils.ParseRepository(image)
+	prj, err := config.GlobalProjectMgr.Get(project)
+	if err != nil {
+		return fmt.Errorf("failed to get project %s, image %s: %v", project, image, err)
+	}
+
+	policies, err := controller.PolicyManager.GetPolicies(prj.ProjectID, "")
+	if err != nil {
+		return fmt.Errorf("failed to get webhook policies projectID %d, image %s: %v", prj.ProjectID, image, err)
+	}
+
+	if len(policies) == 0 {
+		return nil
+	}
+
+	for _, policy := range policies {
+		if len(policy.HookTypes) == 0 {
+			log.Warningf("webhook policy doesn't contain any hook type, policyID: %d", policy.ID)
+			continue
+		}
+		shouldTrigger := false
+		for _, hookType := range policy.HookTypes {
+			if hookType == webhook.ImagePushEvent {
+				shouldTrigger = true
+				break
+			}
+		}
+
+		if !shouldTrigger {
+			continue
+		}
+
+		item := models.FilterItem{
+			Kind:      replication.FilterItemKindTag,
+			Value:     image,
+			Operation: webhook.ImagePushEvent,
+		}
+		if err := notifier.Publish(topic.StartWebhookTopic, notification.StartWebhookNotification{
+			Policy: policy,
+			Metadata: map[string]interface{}{
+				"candidates": []models.FilterItem{item},
+			},
+		}); err != nil {
+			return fmt.Errorf("failed to publish webhook topic for resource %s, policy %d: %v",
+				image, policy.ID, err)
+		}
+		log.Infof("webhook topic for resource %s, policy %d triggered", image, policy.ID)
 	}
 	return nil
 }

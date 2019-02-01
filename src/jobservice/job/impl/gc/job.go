@@ -30,6 +30,7 @@ import (
 	"github.com/goharbor/harbor/src/jobservice/env"
 	"github.com/goharbor/harbor/src/jobservice/logger"
 	"github.com/goharbor/harbor/src/registryctl/client"
+	"github.com/goharbor/harbor/src/common/job"
 )
 
 const (
@@ -53,6 +54,11 @@ type GarbageCollector struct {
 // MaxFails implements the interface in job/Interface
 func (gc *GarbageCollector) MaxFails() uint {
 	return 1
+}
+
+// Priority implements the interface in job/Interface
+func (gc *GarbageCollector) Priority() uint {
+	return job.JobPriorityNormal
 }
 
 // ShouldRetry implements the interface in job/Interface

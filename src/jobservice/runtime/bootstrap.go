@@ -38,6 +38,7 @@ import (
 	"github.com/goharbor/harbor/src/jobservice/pool"
 	"github.com/goharbor/harbor/src/jobservice/utils"
 	"github.com/gomodule/redigo/redis"
+	"github.com/goharbor/harbor/src/jobservice/job/impl/webhook"
 )
 
 const (
@@ -211,6 +212,7 @@ func (bs *Bootstrap) loadAndRunRedisWorkerPool(ctx *env.Context, cfg *config.Con
 			job.ImageDelete:     (*replication.Deleter)(nil),
 			job.ImageReplicate:  (*replication.Replicator)(nil),
 			job.ImageGC:         (*gc.GarbageCollector)(nil),
+			job.ImageWebhook:    (*webhook.WebhookExecutor)(nil),
 		}); err != nil {
 		// exit
 		return nil, err

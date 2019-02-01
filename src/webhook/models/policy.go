@@ -15,29 +15,21 @@
 package models
 
 import (
-	"github.com/astaxie/beego/orm"
+	"time"
+	"github.com/goharbor/harbor/src/replication/models"
 )
 
-func init() {
-	orm.RegisterModel(new(RepTarget),
-		new(RepPolicy),
-		new(RepJob),
-		new(User),
-		new(Project),
-		new(Role),
-		new(AccessLog),
-		new(ScanJob),
-		new(RepoRecord),
-		new(ImgScanOverview),
-		new(ClairVulnTimestamp),
-		new(WatchItem),
-		new(ProjectMetadata),
-		new(ConfigEntry),
-		new(Label),
-		new(ResourceLabel),
-		new(UserGroup),
-		new(AdminJob),
-		new(JobLog),
-		new(WebhookPolicy),
-		new(WebhookJob))
+// WebhookPolicy defines the structure of a webhook policy. This struct is used internally.
+// Could transfer from dao model or transfer to api model.
+type WebhookPolicy struct {
+	ID                int64 // UUID of the policy
+	Name              string
+	Description       string
+	Filters           []models.Filter
+	ProjectID         int64  // Project attached to this policy
+	Target            string
+	HookTypes         []string
+	CreationTime      time.Time
+	UpdateTime        time.Time
+	Enabled           bool
 }

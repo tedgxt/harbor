@@ -296,6 +296,18 @@ func (p *ProjectAPI) deletable(projectID int64) (*deletableResp, error) {
 		}, nil
 	}
 
+	webhooks, err := dao.GetWebhookPolicyByName(projectID, "")
+	if err != nil {
+		return nil, err
+	}
+
+	if len(webhooks) > 0 {
+		return &deletableResp{
+			Deletable: false,
+			Message:   "the project contains webhook policies, can not be deleted",
+		}, nil
+	}
+
 	// Check helm charts number
 	if config.WithChartMuseum() {
 		charts, err := chartController.ListCharts(p.project.Name)

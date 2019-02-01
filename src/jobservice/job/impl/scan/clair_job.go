@@ -50,6 +50,11 @@ func (cj *ClairJob) ShouldRetry() bool {
 	return false
 }
 
+// Priority implements the interface in job/Interface
+func (cj *ClairJob) Priority() uint {
+	return job.JobPriorityNormal
+}
+
 // Validate implements the interface in job/Interface
 func (cj *ClairJob) Validate(params map[string]interface{}) error {
 	return nil

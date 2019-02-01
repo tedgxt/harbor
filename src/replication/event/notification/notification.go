@@ -14,6 +14,8 @@
 
 package notification
 
+import "github.com/goharbor/harbor/src/webhook/models"
+
 // OnPushNotification contains the data required by this handler
 type OnPushNotification struct {
 	// The name of the image that is being pushed
@@ -30,5 +32,12 @@ type OnDeletionNotification struct {
 type StartReplicationNotification struct {
 	// ID of the policy
 	PolicyID int64
+	Metadata map[string]interface{}
+}
+
+// StartWebhookNotification contains data required by this handler
+type StartWebhookNotification struct {
+	// the policy trigger the notification
+	Policy *models.WebhookPolicy
 	Metadata map[string]interface{}
 }

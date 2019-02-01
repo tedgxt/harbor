@@ -113,6 +113,7 @@ func (n *NotificationHandler) Post() {
 
 			go func() {
 				image := repository + ":" + tag
+				// this will publish a Push event which will trigger all subscribers watching on it. e.g. replication webhook
 				err := notifier.Publish(topic.ReplicationEventTopicOnPush, rep_notification.OnPushNotification{
 					Image: image,
 				})

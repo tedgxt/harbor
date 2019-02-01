@@ -38,6 +38,13 @@ type Interface interface {
 	// uint: the failure count allowed. If it is set to 0, then default value 4 is used.
 	MaxFails() uint
 
+	// Declare the priority of job queue.(1-100000)
+	// See https://github.com/gocraft/work#scheduling-algorithm
+	//
+	// Return:
+	// uint: the priority
+	Priority() uint
+
 	// Tell the worker pool if retry the failed job when the fails is
 	// still less that the number declared by the method 'MaxFails'.
 	//

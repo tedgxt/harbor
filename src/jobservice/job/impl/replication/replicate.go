@@ -23,6 +23,7 @@ import (
 	reg "github.com/goharbor/harbor/src/common/utils/registry"
 	"github.com/goharbor/harbor/src/jobservice/env"
 	"github.com/goharbor/harbor/src/jobservice/logger"
+	"github.com/goharbor/harbor/src/common/job"
 )
 
 // Replicator call UI's API to start a repliation according to the policy ID
@@ -44,6 +45,11 @@ func (r *Replicator) ShouldRetry() bool {
 // MaxFails ...
 func (r *Replicator) MaxFails() uint {
 	return 0
+}
+
+// Priority ...
+func (r *Replicator) Priority() uint {
+	return job.JobPriorityNormal
 }
 
 // Validate ....

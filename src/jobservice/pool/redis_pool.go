@@ -245,7 +245,9 @@ func (gcwp *GoCraftWorkPool) RegisterJob(name string, j interface{}) error {
 	theJ := Wrap(j)
 
 	gcwp.pool.JobWithOptions(name,
-		work.JobOptions{MaxFails: theJ.MaxFails()},
+		work.JobOptions{
+			MaxFails: theJ.MaxFails(),
+			Priority: theJ.Priority()},
 		func(job *work.Job) error {
 			return redisJob.Run(job)
 		}, // Use generic handler to handle as we do not accept context with this way.

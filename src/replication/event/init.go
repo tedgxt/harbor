@@ -23,17 +23,20 @@ import (
 // Subscribe related topics
 func init() {
 	// Listen the related event topics
-	handlers := map[string]notifier.NotificationHandler{
-		topic.StartReplicationTopic:           &StartReplicationHandler{},
-		topic.ReplicationEventTopicOnPush:     &OnPushHandler{},
-		topic.ReplicationEventTopicOnDeletion: &OnDeletionHandler{},
+	handlersMap := map[string][]notifier.NotificationHandler{
+		topic.StartReplicationTopic:           {&StartReplicationHandler{}},
+		topic.ReplicationEventTopicOnPush:     {&OnPushHandler{}},
+		topic.ReplicationEventTopicOnDeletion: {&OnDeletionHandler{}},
+		topic.StartWebhookTopic:               {&StartWebhookHandler{}},
 	}
 
-	for topic, handler := range handlers {
-		if err := notifier.Subscribe(topic, handler); err != nil {
-			log.Errorf("failed to subscribe topic %s: %v", topic, err)
-			continue
+	for t, handlers := range handlersMap {
+		for _, handler := range handlers {
+			if err := notifier.Subscribe(t, handler); err != nil{
+				log.Errorf("failed to subscribe topic %s: %v", t, err)
+				continue
+			}
+			log.Debugf("topic %s is subscribed", t)
 		}
-		log.Debugf("topic %s is subscribed", topic)
 	}
 }

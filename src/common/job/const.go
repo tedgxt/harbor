@@ -13,6 +13,13 @@ const (
 	ImageReplicate = "IMAGE_REPLICATE"
 	// ImageGC the name of image garbage collection job in job service
 	ImageGC = "IMAGE_GC"
+	// ImageWebhook the name of image webhook job in job service
+	ImageWebhook = "IMAGE_WEBHOOK"
+
+	// Job Priority define (1-100000).see https://github.com/gocraft/work#scheduling-algorithm
+	JobPriorityHigh = 50000
+	JobPriorityNormal = 500
+	JobPriorityLow = 5
 
 	// JobKindGeneric : Kind of generic job
 	JobKindGeneric = "Generic"
