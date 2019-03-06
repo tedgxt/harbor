@@ -37,6 +37,8 @@ type pgsql struct {
 	pwd      string
 	database string
 	sslmode  string
+	mic      int
+	moc      int
 }
 
 // Name returns the name of PostgreSQL
@@ -51,7 +53,7 @@ func (p *pgsql) String() string {
 }
 
 // NewPGSQL returns an instance of postgres
-func NewPGSQL(host string, port string, usr string, pwd string, database string, sslmode string) Database {
+func NewPGSQL(host, port, usr, pwd, database, sslmode string, mic , moc int) Database {
 	if len(sslmode) == 0 {
 		sslmode = "disable"
 	}
@@ -62,6 +64,8 @@ func NewPGSQL(host string, port string, usr string, pwd string, database string,
 		pwd:      pwd,
 		database: database,
 		sslmode:  sslmode,
+		mic:      mic,
+		moc:      moc,
 	}
 }
 
@@ -81,8 +85,11 @@ func (p *pgsql) Register(alias ...string) error {
 	}
 	info := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		p.host, p.port, p.usr, p.pwd, p.database, p.sslmode)
-
-	return orm.RegisterDataBase(an, "postgres", info)
+	if p.moc > 0 && p.mic > 0 {
+		return orm.RegisterDataBase(an, "postgres", info, p.mic, p.moc)
+	} else {
+		return orm.RegisterDataBase(an, "postgres", info)
+	}
 }
 
 // UpgradeSchema calls migrate tool to upgrade schema to the latest based on the SQL scripts.

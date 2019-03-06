@@ -32,6 +32,7 @@ import (
 	"github.com/goharbor/harbor/src/jobservice/logger"
 	"github.com/goharbor/harbor/src/jobservice/logger/sweeper"
 	jmodel "github.com/goharbor/harbor/src/jobservice/models"
+	"github.com/goharbor/harbor/src/common/utils"
 )
 
 const (
@@ -231,6 +232,8 @@ func getDBFromConfig(cfg map[string]interface{}) *models.Database {
 	postgresql.Password = cfg[common.PostGreSQLPassword].(string)
 	postgresql.Database = cfg[common.PostGreSQLDatabase].(string)
 	postgresql.SSLMode = cfg[common.PostGreSQLSSLMode].(string)
+	postgresql.MaxIdleConns = utils.SafeCastInt(cfg[common.PostGreSQLMaxIdleConns])
+	postgresql.MaxOpenConns = utils.SafeCastInt(cfg[common.PostGreSQLMaxIdleConns])
 	database.PostGreSQL = postgresql
 
 	return database

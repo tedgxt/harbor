@@ -411,6 +411,8 @@ func Database() (*models.Database, error) {
 	postgresql.Password = utils.SafeCastString(cfg[common.PostGreSQLPassword])
 	postgresql.Database = utils.SafeCastString(cfg[common.PostGreSQLDatabase])
 	postgresql.SSLMode = utils.SafeCastString(cfg[common.PostGreSQLSSLMode])
+	postgresql.MaxIdleConns = int(utils.SafeCastFloat64(cfg[common.PostGreSQLMaxIdleConns]))
+	postgresql.MaxOpenConns = int(utils.SafeCastFloat64(cfg[common.PostGreSQLMaxOpenConns]))
 	database.PostGreSQL = postgresql
 
 	return database, nil
@@ -473,6 +475,8 @@ func ClairDB() (*models.PostGreSQL, error) {
 	clairDB.Password = utils.SafeCastString(cfg[common.ClairDBPassword])
 	clairDB.Database = utils.SafeCastString(cfg[common.ClairDB])
 	clairDB.SSLMode = utils.SafeCastString(cfg[common.ClairDBSSLMode])
+	clairDB.MaxOpenConns = int(utils.SafeCastFloat64(cfg[common.ClairDBMaxOpenConns]))
+	clairDB.MaxIdleConns = int(utils.SafeCastFloat64(cfg[common.ClairDBMaxIdleConns]))
 	return clairDB, nil
 }
 

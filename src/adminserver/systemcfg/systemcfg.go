@@ -433,6 +433,8 @@ func GetDatabaseFromCfg(cfg map[string]interface{}) *models.Database {
 	postgresql.Password = utils.SafeCastString(cfg[common.PostGreSQLPassword])
 	postgresql.Database = utils.SafeCastString(cfg[common.PostGreSQLDatabase])
 	postgresql.SSLMode = utils.SafeCastString(cfg[common.PostGreSQLSSLMode])
+	postgresql.MaxIdleConns = int(utils.SafeCastInt(cfg[common.PostGreSQLMaxIdleConns]))
+	postgresql.MaxOpenConns = int(utils.SafeCastInt(cfg[common.PostGreSQLMaxOpenConns]))
 	database.PostGreSQL = postgresql
 	return database
 }
