@@ -48,8 +48,8 @@ func (p *pgsql) Name() string {
 
 // String ...
 func (p *pgsql) String() string {
-	return fmt.Sprintf("type-%s host-%s port-%s databse-%s sslmode-%q",
-		p.Name(), p.host, p.port, p.database, p.sslmode)
+	return fmt.Sprintf("type-%s host-%s port-%s databse-%s sslmode-%q maxidleconns-%d maxopenconns-%d",
+		p.Name(), p.host, p.port, p.database, p.sslmode, p.mic, p.moc)
 }
 
 // NewPGSQL returns an instance of postgres
