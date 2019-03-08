@@ -73,8 +73,14 @@ var (
 		common.PostGreSQLPassword: "POSTGRESQL_PASSWORD",
 		common.PostGreSQLDatabase: "POSTGRESQL_DATABASE",
 		common.PostGreSQLSSLMode:  "POSTGRESQL_SSLMODE",
-		common.PostGreSQLMaxIdleConns:  "POSTGRESQL_MAXIDLECONNS",
-		common.PostGreSQLMaxOpenConns:  "POSTGRESQL_MAXOPENCONNS",
+		common.PostGreSQLMaxIdleConns:  &parser{
+			env:   "POSTGRESQL_MAXIDLECONNS",
+			parse: parseStringToInt,
+		},
+		common.PostGreSQLMaxOpenConns:  &parser{
+			env:   "POSTGRESQL_MAXOPENCONNS",
+			parse: parseStringToInt,
+		},
 		common.LDAPURL:            "LDAP_URL",
 		common.LDAPSearchDN:       "LDAP_SEARCH_DN",
 		common.LDAPSearchPwd:      "LDAP_SEARCH_PWD",
@@ -189,8 +195,14 @@ var (
 		common.PostGreSQLPassword: "POSTGRESQL_PASSWORD",
 		common.PostGreSQLDatabase: "POSTGRESQL_DATABASE",
 		common.PostGreSQLSSLMode:  "POSTGRESQL_SSLMODE",
-		common.PostGreSQLMaxIdleConns:  "POSTGRESQL_MAXIDLECONNS",
-		common.PostGreSQLMaxOpenConns:  "POSTGRESQL_MAXOPENCONNS",
+		common.PostGreSQLMaxIdleConns:  &parser{
+			env:   "POSTGRESQL_MAXIDLECONNS",
+			parse: parseStringToInt,
+		},
+		common.PostGreSQLMaxOpenConns:  &parser{
+			env:   "POSTGRESQL_MAXOPENCONNS",
+			parse: parseStringToInt,
+		},
 		common.MaxJobWorkers: &parser{
 			env:   "MAX_JOB_WORKERS",
 			parse: parseStringToInt,
