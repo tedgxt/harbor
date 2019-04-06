@@ -40,6 +40,8 @@ var (
 		common.CfgExpiration:        true,
 		common.ClairDBPort:          true,
 		common.PostGreSQLPort:       true,
+		common.PostGreSQLMaxIdleConns:          true,
+		common.PostGreSQLMaxOpenConns:          true,
 	}
 	boolKeys = map[string]bool{
 		common.WithClair:        true,

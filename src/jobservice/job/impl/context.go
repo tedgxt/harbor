@@ -233,7 +233,7 @@ func getDBFromConfig(cfg map[string]interface{}) *models.Database {
 	postgresql.Database = cfg[common.PostGreSQLDatabase].(string)
 	postgresql.SSLMode = cfg[common.PostGreSQLSSLMode].(string)
 	postgresql.MaxIdleConns = utils.SafeCastInt(cfg[common.PostGreSQLMaxIdleConns])
-	postgresql.MaxOpenConns = utils.SafeCastInt(cfg[common.PostGreSQLMaxIdleConns])
+	postgresql.MaxOpenConns = utils.SafeCastInt(cfg[common.PostGreSQLMaxOpenConns])
 	database.PostGreSQL = postgresql
 
 	return database
