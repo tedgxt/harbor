@@ -196,10 +196,10 @@ var (
 		common.PostGreSQLDatabase: "POSTGRESQL_DATABASE",
 		common.PostGreSQLSSLMode:  "POSTGRESQL_SSLMODE",
 		common.PostGreSQLMaxIdleConns:  &parser{
-                        env:   "POSTGRESQL_MAXIDLECONNS",
+			env:   "POSTGRESQL_MAXIDLECONNS",
 			parse: parseStringToInt,
-	        },
-	        common.PostGreSQLMaxOpenConns:  &parser{
+		},
+		common.PostGreSQLMaxOpenConns:  &parser{
 			env:   "POSTGRESQL_MAXOPENCONNS",
 			parse: parseStringToInt,
 		},
