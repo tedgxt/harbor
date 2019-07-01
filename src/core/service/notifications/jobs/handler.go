@@ -23,6 +23,7 @@ import (
 	"github.com/goharbor/harbor/src/common/models"
 	"github.com/goharbor/harbor/src/common/utils/log"
 	"github.com/goharbor/harbor/src/core/api"
+	"github.com/goharbor/harbor/src/core/metrics"
 )
 
 var statusMap = map[string]string{
@@ -81,9 +82,20 @@ func (h *Handler) HandleScan() {
 // HandleReplication handles the webhook of replication job
 func (h *Handler) HandleReplication() {
 	log.Debugf("received replication job status update event: job-%d, status-%s", h.id, h.status)
+	hookMetrics(h.id, h.status, "replication")
 	if err := dao.UpdateRepJobStatus(h.id, h.status); err != nil {
 		log.Errorf("Failed to update job status, id: %d, status: %s", h.id, h.status)
 		h.HandleInternalServerError(err.Error())
 		return
 	}
+}
+
+func hookMetrics(jobId int64, status, jobType string) {
+	stat := metrics.GlobalStatsManager.GetStat(metrics.PrometheusStats)
+	name := status + "_jobs"
+	stat.Tagged(map[string]string{
+		"service":   "core",
+		"module": "jobs",
+		"type":   jobType,
+	}).Counter(name).Inc(1)
 }

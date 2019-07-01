@@ -38,6 +38,7 @@ import (
 	"github.com/goharbor/harbor/src/core/service/token"
 	"github.com/goharbor/harbor/src/replication/core"
 	_ "github.com/goharbor/harbor/src/replication/event"
+	"github.com/goharbor/harbor/src/core/metrics"
 )
 
 const (
@@ -103,6 +104,18 @@ func main() {
 	if err := updateInitPassword(adminUserID, password); err != nil {
 		log.Error(err)
 	}
+
+	// Init Metrics
+	listenAddr := os.Getenv("METRICS_LISTEN_ADDRESS")
+	if len(listenAddr) == 0 {
+		listenAddr = "0.0.0.0:8082"
+	}
+	stat, closer, err := metrics.NewPrometheusScope(listenAddr)
+	if err != nil {
+		log.Error("failed to initialize metrics: %s", err)
+	}
+	defer closer.Close()
+	metrics.GlobalStatsManager.Register(metrics.PrometheusStats, stat)
 
 	// Init API handler
 	if err := api.Init(); err != nil {
