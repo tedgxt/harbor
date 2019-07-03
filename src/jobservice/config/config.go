@@ -75,6 +75,9 @@ type Configuration struct {
 
 	// Logger configurations
 	LoggerConfigs []*LoggerConfig `yaml:"loggers,omitempty"`
+
+	// WebHook configurations
+	WebHookConfig *WebHookConfig `yaml:"web_hook,omitempty"`
 }
 
 // HTTPSConfig keeps additional configurations when using https protocol
@@ -112,6 +115,10 @@ type LoggerConfig struct {
 	Level    string             `yaml:"level"`
 	Settings CustomizedSettings `yaml:"settings"`
 	Sweeper  *LogSweeperConfig  `yaml:"sweeper"`
+}
+
+type WebHookConfig struct {
+	WebHookMaxRetry int64 `yaml:"webhook_max_retry"`
 }
 
 // Load the configuration options from the specified yaml file.

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
+	"github.com/goharbor/harbor/src/jobservice/config"
 	"github.com/goharbor/harbor/src/jobservice/job"
 	"github.com/goharbor/harbor/src/jobservice/logger"
 	"net/http"
@@ -13,6 +14,9 @@ const (
 	secretHeaderName        = "Authorization"
 	secretHeaderValuePrefix = "Secret"
 	defaultMaxFails         = 5
+	// large enough to simulate unlimited retry.
+	// If unlimitedMaxFails too large, retry interval time calculated by backoff mechanism may overflow.
+	unlimitedMaxFails       = 10000000
 )
 
 type HttpNotifier struct {
@@ -23,12 +27,14 @@ type HttpNotifier struct {
 
 // MaxFails returns that how many times this job can fail, get this value from ctx.
 func (hn *HttpNotifier) MaxFails() uint {
-	if maxFails, ok := hn.ctx.Get("webhook_max_retry"); ok {
-		if maxFailsV, yes := maxFails.(uint); yes {
-			return maxFailsV
-		}
+	maxFails := config.DefaultConfig.WebHookConfig.WebHookMaxRetry
+	if maxFails > 0 && maxFails < unlimitedMaxFails {
+		return uint(maxFails)
+	}
 
-		return defaultMaxFails
+	// Negative number means unlimited retry
+	if maxFails < 0 || maxFails >= unlimitedMaxFails {
+		return unlimitedMaxFails
 	}
 
 	return defaultMaxFails
