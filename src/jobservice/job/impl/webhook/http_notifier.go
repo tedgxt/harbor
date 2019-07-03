@@ -3,6 +3,7 @@ package webhook
 import (
 	"bytes"
 	"crypto/tls"
+	"fmt"
 	"github.com/goharbor/harbor/src/jobservice/job"
 	"github.com/goharbor/harbor/src/jobservice/logger"
 	"net/http"
@@ -20,7 +21,7 @@ type HttpNotifier struct {
 	ctx    job.Context
 }
 
-// MaxFails returns that how many times this job can fail, get this value from config manager.
+// MaxFails returns that how many times this job can fail, get this value from ctx.
 func (hn *HttpNotifier) MaxFails() uint {
 	if maxFails, ok := hn.ctx.Get("webhook_max_retry"); ok {
 		if maxFailsV, yes := maxFails.(uint); yes {
@@ -88,7 +89,7 @@ func (hn *HttpNotifier) execute(ctx job.Context, params map[string]interface{}) 
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 && resp.StatusCode >= 300 {
-		hn.logger.Errorf("webhook job(target: %s, jobData: %s) response code is %d", address, payload, resp.StatusCode)
+		return fmt.Errorf("webhook job(target: %s) response code is %d", address, resp.StatusCode)
 	}
 
 	return nil
