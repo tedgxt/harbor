@@ -4,19 +4,9 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
-	"github.com/goharbor/harbor/src/jobservice/config"
 	"github.com/goharbor/harbor/src/jobservice/job"
 	"github.com/goharbor/harbor/src/jobservice/logger"
 	"net/http"
-)
-
-const (
-	secretHeaderName        = "Authorization"
-	secretHeaderValuePrefix = "Secret"
-	defaultMaxFails         = 5
-	// large enough to simulate unlimited retry.
-	// If unlimitedMaxFails too large, retry interval time calculated by backoff mechanism may overflow.
-	unlimitedMaxFails       = 10000000
 )
 
 type HttpNotifier struct {
@@ -27,17 +17,9 @@ type HttpNotifier struct {
 
 // MaxFails returns that how many times this job can fail, get this value from ctx.
 func (hn *HttpNotifier) MaxFails() uint {
-	maxFails := config.DefaultConfig.WebHookConfig.WebHookMaxRetry
-	if maxFails > 0 && maxFails < unlimitedMaxFails {
-		return uint(maxFails)
-	}
-
-	// Negative number means unlimited retry
-	if maxFails < 0 || maxFails >= unlimitedMaxFails {
-		return unlimitedMaxFails
-	}
-
-	return defaultMaxFails
+	// Max retry interval is around 3h
+	// Large enough to ensure most situations can notify successfully
+	return 10
 }
 
 // ShouldRetry ...
@@ -83,7 +65,7 @@ func (hn *HttpNotifier) execute(ctx job.Context, params map[string]interface{}) 
 	req, err := http.NewRequest(http.MethodPost, address, bytes.NewReader([]byte(payload)))
 	if params["secret"] != nil {
 		secret := params["secret"].(string)
-		req.Header.Set(secretHeaderName, secretHeaderValuePrefix+secret)
+		req.Header.Set("Authorization", "Secret" + secret)
 	}
 
 	if err != nil {
