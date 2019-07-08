@@ -63,7 +63,7 @@ func (hn *HttpNotifier) execute(ctx job.Context, params map[string]interface{}) 
 	address := params["address"].(string)
 
 	req, err := http.NewRequest(http.MethodPost, address, bytes.NewReader([]byte(payload)))
-	if params["secret"] != nil {
+	if _, ok := params["secret"]; ok {
 		secret := params["secret"].(string)
 		req.Header.Set("Authorization", "Secret" + secret)
 	}
