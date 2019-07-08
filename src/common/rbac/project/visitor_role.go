@@ -167,6 +167,12 @@ var (
 
 			{Resource: rbac.ResourceRobot, Action: rbac.ActionRead},
 			{Resource: rbac.ResourceRobot, Action: rbac.ActionList},
+
+			{Resource: rbac.ResourceWebhookPolicy, Action: rbac.ActionCreate},
+			{Resource: rbac.ResourceWebhookPolicy, Action: rbac.ActionUpdate},
+			{Resource: rbac.ResourceWebhookPolicy, Action: rbac.ActionDelete},
+			{Resource: rbac.ResourceWebhookPolicy, Action: rbac.ActionList},
+			{Resource: rbac.ResourceWebhookPolicy, Action: rbac.ActionTest},
 		},
 
 		"developer": {
@@ -216,6 +222,8 @@ var (
 
 			{Resource: rbac.ResourceRobot, Action: rbac.ActionRead},
 			{Resource: rbac.ResourceRobot, Action: rbac.ActionList},
+
+			{Resource: rbac.ResourceWebhookPolicy, Action: rbac.ActionList},
 		},
 
 		"guest": {
