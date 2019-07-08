@@ -11,4 +11,6 @@ const (
 	EventTypeTestPolicy    = "testPolicy"
 
 	ValidType = 1
+
+	HookSendTypeHTTP = "http"
 )

@@ -299,6 +299,7 @@ func (cra *ChartRepositoryAPI) DeleteChartVersion() {
 		return
 	}
 
+	// TODO: delete it?
 	go func() {
 		repoCreateTime := chartController.GetChartRepoCreateTime(cra.namespace, chartName)
 

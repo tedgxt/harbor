@@ -21,6 +21,9 @@ var (
 
 	// SupportedHookTypes is a map store support webhook type, eg. pushImage, pullImage etc
 	SupportedHookTypes map[string]int
+
+	// SupportedSendTypes is a map store webhook send type, eg. HTTP, Email etc
+	SupportedSendTypes map[string]int
 )
 
 func Init() {
@@ -39,8 +42,13 @@ func Init() {
 	// init webhook execution controller
 	ExecutionCtl = operation.NewController()
 
+	SupportedHookTypes = make(map[string]int)
+	SupportedSendTypes = make(map[string]int)
+
 	initSupportedWebhookType(model.EventTypePushImage, model.EventTypePullImage, model.EventTypeDeleteImage,
 		model.EventTypeUploadChart, model.EventTypeDeleteChart, model.EventTypeDownloadChart)
+
+	initSupportedSendType(model.HookSendTypeHTTP)
 
 	log.Info("webhook initialization completed")
 }
@@ -48,5 +56,11 @@ func Init() {
 func initSupportedWebhookType(hookTypes ...string) {
 	for _, hookType := range hookTypes {
 		SupportedHookTypes[hookType] = model.ValidType
+	}
+}
+
+func initSupportedSendType(sendTypes ...string) {
+	for _, sendType := range sendTypes {
+		SupportedSendTypes[sendType] = model.ValidType
 	}
 }

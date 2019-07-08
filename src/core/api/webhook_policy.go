@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/goharbor/harbor/src/common/models"
-
 	"github.com/goharbor/harbor/src/common/rbac"
 	"github.com/goharbor/harbor/src/common/utils/log"
 	apiModels "github.com/goharbor/harbor/src/core/api/models"
@@ -31,9 +30,11 @@ func (w *WebhookPolicyAPI) Prepare() {
 	pid, err := w.GetInt64FromPath(":pid")
 	if err != nil {
 		w.SendBadRequestError(fmt.Errorf("failed to get project ID: %v", err))
+		return
 	}
 	if pid <= 0 {
 		w.SendBadRequestError(fmt.Errorf("invalid project ID: %d", pid))
+		return
 	}
 
 	project, err := w.ProjectMgr.Get(pid)
@@ -105,16 +106,17 @@ func (w *WebhookPolicyAPI) Post() {
 	if !w.validateName(policy) {
 		return
 	}
-
 	if w.project.ProjectID != projectID {
 		w.SendBadRequestError(fmt.Errorf("project ID in url %d not match project ID %d in request body", w.project.ProjectID, projectID))
 		return
 	}
 
-	for _, hookType := range policy.HookTypes {
-		if !w.validateHookType(hookType) {
-			return
-		}
+	if !w.validateTargets(policy) {
+		return
+	}
+
+	if !w.validateHookTypes(policy) {
+		return
 	}
 
 	policy.Creator = w.SecurityCtx.GetUsername()
@@ -151,11 +153,15 @@ func (w *WebhookPolicyAPI) Put() {
 		w.SendBadRequestError(err)
 		return
 	}
-	for _, hookType := range policy.HookTypes {
-		if !w.validateHookType(hookType) {
-			return
-		}
+
+	if !w.validateTargets(policy) {
+		return
 	}
+
+	if !w.validateHookTypes(policy) {
+		return
+	}
+
 	if w.project.ProjectID != policy.ProjectID {
 		w.SendBadRequestError(fmt.Errorf("project ID in url %d not match project ID %d in request body", w.project.ProjectID, policy.ProjectID))
 		return
@@ -171,7 +177,6 @@ func (w *WebhookPolicyAPI) Put() {
 		return
 	}
 	if w.project.ProjectID != oriPolicy.ProjectID {
-
 		w.SendBadRequestError(fmt.Errorf("webhook policy %d with projectID %d not belong to project %d in URL", id, oriPolicy.ProjectID, w.project.ProjectID))
 		return
 	}
@@ -181,6 +186,8 @@ func (w *WebhookPolicyAPI) Put() {
 		w.SendInternalServerError(fmt.Errorf("failed to convert webhook policy from api model: %v", err))
 		return
 	}
+	ply.ID = id
+
 	if err = webhook.PolicyManager.Update(ply); err != nil {
 		w.SendInternalServerError(fmt.Errorf("failed to update the webhook policy: %v", err))
 		return
@@ -200,7 +207,7 @@ func (w *WebhookPolicyAPI) List() {
 		w.SendInternalServerError(errors.New(""))
 	}
 
-	var policies []*apiModels.WebhookPolicy
+	policies := []*apiModels.WebhookPolicy{}
 	if res != nil {
 		for _, policy := range res {
 			ply, err := convertToAPIModel(policy)
@@ -270,10 +277,8 @@ func (w *WebhookPolicyAPI) Test() {
 		return
 	}
 
-	for _, hookType := range policy.HookTypes {
-		if !w.validateHookType(hookType) {
-			return
-		}
+	if !w.validateHookTypes(policy) {
+		return
 	}
 
 	ply, err := convertFromAPIModel(policy)
@@ -313,24 +318,39 @@ func (w *WebhookPolicyAPI) validateName(policy *apiModels.WebhookPolicy) bool {
 
 func (w *WebhookPolicyAPI) validateTargets(policy *apiModels.WebhookPolicy) bool {
 	if len(policy.Targets) == 0 {
-		w.SendBadRequestError(errors.New("empty webhook target"))
+		w.SendBadRequestError(fmt.Errorf("empty webhook target with policy %s", policy.Name))
 		return false
 	}
 
 	for _, target := range policy.Targets {
-		if target.Address == "" || target.Type == "" {
-			w.SendBadRequestError(errors.New("empty webhook target"))
+		if target.Address == "" {
+			w.SendBadRequestError(fmt.Errorf("empty webhook target address with policy %s", policy.Name))
+			return false
+		}
+		t, ok := webhook.SupportedSendTypes[target.Type]
+		if !ok || t != model.ValidType {
+			w.SendBadRequestError(fmt.Errorf("unsupport target type %s with policy %s", target.Type, policy.Name))
 			return false
 		}
 	}
+
 	return true
 }
 
-func (w *WebhookPolicyAPI) validateHookType(hookType string) bool {
-	if webhook.SupportedHookTypes[hookType] != model.ValidType {
-		w.SendBadRequestError(fmt.Errorf("hook type %s not supported", hookType))
+func (w *WebhookPolicyAPI) validateHookTypes(policy *apiModels.WebhookPolicy) bool {
+	if len(policy.HookTypes) == 0 {
+		w.SendBadRequestError(errors.New("empty hook type"))
 		return false
 	}
+
+	for _, hookType := range policy.HookTypes {
+		t, ok := webhook.SupportedHookTypes[hookType]
+		if !ok || t != model.ValidType {
+			w.SendBadRequestError(fmt.Errorf("unsupport hook type %s", hookType))
+			return false
+		}
+	}
+
 	return true
 }
 
@@ -364,11 +384,7 @@ func convertToAPIModel(policy *model.WebhookPolicy) (*apiModels.WebhookPolicy, e
 }
 
 func convertFromAPIModel(policy *apiModels.WebhookPolicy) (*model.WebhookPolicy, error) {
-	if policy.ID == 0 {
-		return nil, nil
-	}
 	ply := &model.WebhookPolicy{
-		ID:           policy.ID,
 		Name:         policy.Name,
 		Description:  policy.Description,
 		ProjectID:    policy.ProjectID,
@@ -379,7 +395,7 @@ func convertFromAPIModel(policy *apiModels.WebhookPolicy) (*model.WebhookPolicy,
 		Enabled:      policy.Enabled,
 	}
 
-	var targets []*model.HookTarget
+	targets := []*model.HookTarget{}
 	for _, t := range policy.Targets {
 		target := &model.HookTarget{
 			Type:       t.Type,
@@ -389,6 +405,7 @@ func convertFromAPIModel(policy *apiModels.WebhookPolicy) (*model.WebhookPolicy,
 		}
 		targets = append(targets, target)
 	}
+	ply.Targets = targets
 
 	return ply, nil
 }

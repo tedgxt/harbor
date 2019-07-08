@@ -13,11 +13,11 @@ import (
 	"github.com/goharbor/harbor/src/webhook/config"
 	"github.com/goharbor/harbor/src/webhook/execution"
 	"github.com/goharbor/harbor/src/webhook/execution/impl"
-	"github.com/goharbor/harbor/src/webhook/scheduler"
+	"github.com/goharbor/harbor/src/webhook/model"
 )
 
 type Manager interface {
-	StartHook(item *scheduler.ScheduleItem, data *models.JobData) error
+	StartHook(item *ScheduleItem, data *models.JobData) error
 }
 
 type HookManager struct {
@@ -32,7 +32,15 @@ func NewHookManager() *HookManager {
 	}
 }
 
-func (hm *HookManager) StartHook(item *scheduler.ScheduleItem, data *models.JobData) error {
+// ScheduleItem is an item that can be scheduled
+type ScheduleItem struct {
+	PolicyId int64
+	Target   *model.HookTarget
+	Payload  interface{}
+	IsTest   bool
+}
+
+func (hm *HookManager) StartHook(item *ScheduleItem, data *models.JobData) error {
 	payload, err := json.Marshal(item.Payload)
 	if err != nil {
 		return err

@@ -207,6 +207,7 @@ func convertFromPersistModel(policy *persistModels.WebhookPolicy) (*model.Webhoo
 		Creator:      policy.Creator,
 		CreationTime: policy.CreationTime,
 		UpdateTime:   policy.UpdateTime,
+		Enabled:      policy.Enabled,
 	}
 
 	hookTypes, err := parseHookTypes(policy.HookTypes)
