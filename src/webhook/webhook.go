@@ -39,6 +39,8 @@ func Init() {
 	// init webhook execution controller
 	ExecutionCtl = operation.NewController()
 
+	SupportedHookTypes = make(map[string]int)
+
 	initSupportedWebhookType(model.EventTypePushImage, model.EventTypePullImage, model.EventTypeDeleteImage,
 		model.EventTypeUploadChart, model.EventTypeDeleteChart, model.EventTypeDownloadChart)
 

@@ -9,8 +9,8 @@ import (
 	"github.com/goharbor/harbor/src/core/config"
 	"github.com/goharbor/harbor/src/core/notifier"
 	"github.com/goharbor/harbor/src/webhook"
+	"github.com/goharbor/harbor/src/webhook/hook"
 	"github.com/goharbor/harbor/src/webhook/model"
-	"github.com/goharbor/harbor/src/webhook/scheduler"
 )
 
 type ChartWebhookHandler struct {
@@ -78,7 +78,7 @@ func (cwh *ChartWebhookHandler) Handle(value interface{}) error {
 	for _, ply := range policies {
 		targets := ply.Targets
 		for _, target := range targets {
-			if err := notifier.Publish(target.Type, &scheduler.ScheduleItem{
+			if err := notifier.Publish(target.Type, &hook.ScheduleItem{
 				PolicyId: ply.ID,
 				Target:   target,
 				Payload:  payload,

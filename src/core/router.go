@@ -15,6 +15,7 @@
 package main
 
 import (
+	"github.com/astaxie/beego"
 	"github.com/goharbor/harbor/src/common"
 	"github.com/goharbor/harbor/src/core/api"
 	"github.com/goharbor/harbor/src/core/config"
@@ -24,8 +25,6 @@ import (
 	"github.com/goharbor/harbor/src/core/service/notifications/jobs"
 	"github.com/goharbor/harbor/src/core/service/notifications/registry"
 	"github.com/goharbor/harbor/src/core/service/token"
-
-	"github.com/astaxie/beego"
 )
 
 func initRouters() {

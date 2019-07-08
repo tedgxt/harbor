@@ -7,7 +7,6 @@ import (
 	"strconv"
 
 	"github.com/goharbor/harbor/src/common/models"
-
 	"github.com/goharbor/harbor/src/common/rbac"
 	"github.com/goharbor/harbor/src/common/utils/log"
 	apiModels "github.com/goharbor/harbor/src/core/api/models"
