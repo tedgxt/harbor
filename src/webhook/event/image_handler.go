@@ -29,8 +29,8 @@ func (iwh *ImageWebhookHandler) Handle(value interface{}) error {
 		return errors.New("ImageWebhookHandler cannot handle nil value")
 	}
 
-	imgEvent, ok := value.(ImageEvent)
-	if !ok {
+	imgEvent, ok := value.(*ImageEvent)
+	if !ok || imgEvent == nil {
 		return errors.New("invalid image webhook event")
 	}
 
@@ -80,7 +80,7 @@ func (iwh *ImageWebhookHandler) Handle(value interface{}) error {
 		for _, target := range targets {
 			if err := notifier.Publish(target.Type, &hook.ScheduleItem{
 				PolicyId: ply.ID,
-				Target:   target,
+				Target:   &target,
 				Payload:  payload,
 			}); err != nil {
 				return fmt.Errorf("failed to publish webhook topic by %s: %v", target.Type, err)
@@ -96,7 +96,7 @@ func (iwh *ImageWebhookHandler) IsStateful() bool {
 	return false
 }
 
-func (iwh *ImageWebhookHandler) constructImagePayload(event ImageEvent) (*model.Payload, error) {
+func (iwh *ImageWebhookHandler) constructImagePayload(event *ImageEvent) (*model.Payload, error) {
 	repoName := event.RepoName
 	if repoName == "" {
 		return nil, errors.New("invalid webhook event")

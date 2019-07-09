@@ -20,7 +20,7 @@ create table webhook_policy (
  status varchar(32),
  hook_type varchar(256),
  job_detail text,
- uuid varchar(64),
+ job_uuid varchar(64),
  creation_time timestamp default CURRENT_TIMESTAMP,
  update_time timestamp default CURRENT_TIMESTAMP,
  PRIMARY KEY (id)

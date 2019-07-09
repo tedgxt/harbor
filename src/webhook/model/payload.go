@@ -12,10 +12,10 @@ type Payload struct {
 
 // EventData of image webhook event
 type EventData struct {
-	Digest       string       `json:"digest,omitempty"`
-	Tag          string       `json:"tag"`
-	ResourceURL  string       `json:"resource_url,omitempty"`
-	ScanOverview ScanOverview `json:"scan_overview,omitempty"`
+	Digest       string        `json:"digest,omitempty"`
+	Tag          string        `json:"tag"`
+	ResourceURL  string        `json:"resource_url,omitempty"`
+	ScanOverview *ScanOverview `json:"scan_overview,omitempty"`
 }
 
 // Repository info of webhook event
@@ -29,7 +29,7 @@ type Repository struct {
 
 // ScanOverview of scan result
 type ScanOverview struct {
-	Components *Components `json:"components"`
+	Components *Components `json:"components,omitempty"`
 }
 
 // Components of scan result

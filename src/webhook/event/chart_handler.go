@@ -27,8 +27,8 @@ func (cwh *ChartWebhookHandler) Handle(value interface{}) error {
 		return errors.New("ChartWebhookHandler cannot handle nil value")
 	}
 
-	crtEvent, ok := value.(ChartEvent)
-	if !ok {
+	crtEvent, ok := value.(*ChartEvent)
+	if !ok || crtEvent == nil {
 		return errors.New("invalid chart webhook event")
 	}
 
@@ -80,7 +80,7 @@ func (cwh *ChartWebhookHandler) Handle(value interface{}) error {
 		for _, target := range targets {
 			if err := notifier.Publish(target.Type, &hook.ScheduleItem{
 				PolicyId: ply.ID,
-				Target:   target,
+				Target:   &target,
 				Payload:  payload,
 			}); err != nil {
 				return fmt.Errorf("failed to publish chart webhook topic by %s: %v", target.Type, err)
@@ -96,7 +96,7 @@ func (cwh *ChartWebhookHandler) IsStateful() bool {
 	return false
 }
 
-func (cwh *ChartWebhookHandler) constructChartPayload(proj *models.Project, event ChartEvent) (*model.Payload, error) {
+func (cwh *ChartWebhookHandler) constructChartPayload(proj *models.Project, event *ChartEvent) (*model.Payload, error) {
 	repoType := "private"
 	if proj.IsPublic() {
 		repoType = "public"

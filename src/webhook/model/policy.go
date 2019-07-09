@@ -8,7 +8,7 @@ type WebhookPolicy struct {
 	Name         string
 	Description  string
 	ProjectID    int64
-	Targets      []*HookTarget
+	Targets      []HookTarget
 	HookTypes    []string
 	Creator      string
 	CreationTime time.Time

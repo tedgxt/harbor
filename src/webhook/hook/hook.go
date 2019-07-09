@@ -80,7 +80,7 @@ func (hm *HookManager) StartHook(item *ScheduleItem, data *models.JobData) error
 			return
 		}
 		whExecution.UUID = jobUUID
-		e := hm.execMgr.Update(whExecution, "JobUuid", "UpdateTime")
+		e := hm.execMgr.Update(whExecution, "UUID", "UpdateTime")
 		if e != nil {
 			log.Errorf("failed to update the webhook execution %d: %v", id, e)
 		}

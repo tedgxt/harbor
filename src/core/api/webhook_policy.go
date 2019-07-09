@@ -205,6 +205,7 @@ func (w *WebhookPolicyAPI) List() {
 	if err != nil {
 		log.Errorf("failed to get policies: %v, projectID: %d", err, projectID)
 		w.SendInternalServerError(errors.New(""))
+		return
 	}
 
 	policies := []*apiModels.WebhookPolicy{}
@@ -367,6 +368,7 @@ func convertToAPIModel(policy *model.WebhookPolicy) (*apiModels.WebhookPolicy, e
 		CreationTime: policy.CreationTime,
 		UpdateTime:   policy.UpdateTime,
 		Enabled:      policy.Enabled,
+		Creator:      policy.Creator,
 	}
 
 	var targets []*apiModels.HookTarget
@@ -395,9 +397,9 @@ func convertFromAPIModel(policy *apiModels.WebhookPolicy) (*model.WebhookPolicy,
 		Enabled:      policy.Enabled,
 	}
 
-	targets := []*model.HookTarget{}
+	targets := []model.HookTarget{}
 	for _, t := range policy.Targets {
-		target := &model.HookTarget{
+		target := model.HookTarget{
 			Type:       t.Type,
 			Address:    t.Address,
 			Attachment: t.Attachment,

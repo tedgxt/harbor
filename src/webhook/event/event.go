@@ -8,6 +8,7 @@ import (
 	"github.com/goharbor/harbor/src/core/notifier"
 	"github.com/goharbor/harbor/src/webhook/event/topic"
 	"github.com/goharbor/harbor/src/webhook/model"
+	"github.com/goharbor/harbor/src/webhook/scheduler"
 )
 
 const (
@@ -55,6 +56,7 @@ func init() {
 	handlersMap := map[string][]notifier.NotificationHandler{
 		topic.WebhookEventTopicOnImage: {&ImageWebhookHandler{}},
 		topic.WebhookEventTopicOnChart: {&ChartWebhookHandler{}},
+		topic.WebhookSendTopicOnHTTP:   {&scheduler.HttpScheduler{}},
 	}
 
 	for t, handlers := range handlersMap {

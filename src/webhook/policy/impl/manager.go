@@ -176,7 +176,7 @@ func convertToPersistModel(policy *model.WebhookPolicy) (*persistModels.WebhookP
 		Enabled:      policy.Enabled,
 	}
 
-	if policy.Targets != nil {
+	if len(policy.Targets) != 0 {
 		targets, err := json.Marshal(policy.Targets)
 		if err != nil {
 			return nil, err
@@ -224,12 +224,12 @@ func convertFromPersistModel(policy *persistModels.WebhookPolicy) (*model.Webhoo
 	return &ply, nil
 }
 
-func parseTargets(targets string) ([]*model.HookTarget, error) {
+func parseTargets(targets string) ([]model.HookTarget, error) {
 	if len(targets) == 0 {
 		return nil, nil
 	}
-	var t []*model.HookTarget
-	if err := json.Unmarshal([]byte(targets), t); err != nil {
+	var t []model.HookTarget
+	if err := json.Unmarshal([]byte(targets), &t); err != nil {
 		return nil, err
 	}
 
