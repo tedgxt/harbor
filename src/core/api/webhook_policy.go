@@ -328,6 +328,10 @@ func (w *WebhookPolicyAPI) Test() {
 }
 
 func (w *WebhookPolicyAPI) validateRBAC(action rbac.Action, projectID int64) bool {
+	if w.SecurityCtx.IsSysAdmin() {
+		return true
+	}
+
 	project, err := w.ProjectMgr.Get(projectID)
 	if err != nil {
 		w.ParseAndHandleError(fmt.Sprintf("failed to get project %d", projectID), err)
@@ -449,10 +453,11 @@ func convertToAPIModel(policy *model.WebhookPolicy) (*apiModels.WebhookPolicy, e
 	var targets []*apiModels.HookTarget
 	for _, t := range policy.Targets {
 		target := &apiModels.HookTarget{
-			// do not return secret info
-			Type:       t.Type,
-			Address:    t.Address,
-			Attachment: t.Attachment,
+			Type:             t.Type,
+			Address:          t.Address,
+			Secret:           t.Secret,
+			RemoteCertVerify: t.RemoteCertVerify,
+			Attachment:       t.Attachment,
 		}
 		targets = append(targets, target)
 	}
@@ -475,10 +480,11 @@ func convertFromAPIModel(policy *apiModels.WebhookPolicy) (*model.WebhookPolicy,
 	targets := []model.HookTarget{}
 	for _, t := range policy.Targets {
 		target := model.HookTarget{
-			Type:       t.Type,
-			Address:    t.Address,
-			Attachment: t.Attachment,
-			Secret:     t.Secret,
+			Type:             t.Type,
+			Address:          t.Address,
+			Attachment:       t.Attachment,
+			Secret:           t.Secret,
+			RemoteCertVerify: t.RemoteCertVerify,
 		}
 		targets = append(targets, target)
 	}

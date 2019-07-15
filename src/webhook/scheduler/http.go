@@ -48,9 +48,10 @@ func (h *HTTPScheduler) process(item *hook.ScheduleItem) error {
 	}
 
 	j.Parameters = map[string]interface{}{
-		"payload": string(payload),
-		"address": item.Target.Address,
-		"secret":  item.Target.Secret,
+		"payload":            string(payload),
+		"address":            item.Target.Address,
+		"secret":             item.Target.Secret,
+		"remote_cert_verify": item.Target.RemoteCertVerify,
 	}
 	return webhook.HookManager.StartHook(item, j)
 }

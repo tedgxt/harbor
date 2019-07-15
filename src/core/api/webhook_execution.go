@@ -132,6 +132,10 @@ func (w *WebhookExecutionAPI) Delete() {
 }
 
 func (w *WebhookExecutionAPI) validateRBAC(action rbac.Action, projectID int64) bool {
+	if w.SecurityCtx.IsSysAdmin() {
+		return true
+	}
+
 	project, err := w.ProjectMgr.Get(projectID)
 	if err != nil {
 		w.ParseAndHandleError(fmt.Sprintf("failed to get project %d", projectID), err)

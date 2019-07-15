@@ -12,6 +12,7 @@ import (
 	"github.com/goharbor/harbor/src/common/dao"
 	persistModels "github.com/goharbor/harbor/src/common/models"
 	"github.com/goharbor/harbor/src/common/utils/log"
+	"github.com/goharbor/harbor/src/common/utils/registry"
 	"github.com/goharbor/harbor/src/webhook/model"
 )
 
@@ -38,14 +39,11 @@ var testPayload = model.Payload{
 
 // DefaultManager ...
 type DefaultManager struct {
-	client *http.Client
 }
 
 // NewDefaultManger ...
 func NewDefaultManger() *DefaultManager {
-	return &DefaultManager{
-		client: &http.Client{},
-	}
+	return &DefaultManager{}
 }
 
 // Create webhook policy
@@ -126,7 +124,7 @@ func (m *DefaultManager) Test(policy *model.WebhookPolicy) error {
 	for _, target := range policy.Targets {
 		switch target.Type {
 		case "http":
-			return m.policyHTTPTest(target.Address, target.Secret, p)
+			return m.policyHTTPTest(target.Address, target.Secret, target.RemoteCertVerify, p)
 		default:
 			return fmt.Errorf("invalid policy target type: %s", target.Type)
 		}
@@ -134,7 +132,7 @@ func (m *DefaultManager) Test(policy *model.WebhookPolicy) error {
 	return nil
 }
 
-func (m *DefaultManager) policyHTTPTest(address, secret string, payload []byte) error {
+func (m *DefaultManager) policyHTTPTest(address, secret string, certVerify bool, payload []byte) error {
 	p := bytes.NewReader(payload)
 	req, err := http.NewRequest(http.MethodPost, address, p)
 	if err != nil {
@@ -145,7 +143,11 @@ func (m *DefaultManager) policyHTTPTest(address, secret string, payload []byte) 
 		req.Header.Set("Authorization", "Secret "+secret)
 	}
 
-	resp, err := m.client.Do(req)
+	client := http.Client{
+		Transport: registry.GetHTTPTransport(certVerify),
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}

@@ -18,10 +18,11 @@ type WebhookPolicy struct {
 
 // HookTarget defines the structure of target a webhook send to for API
 type HookTarget struct {
-	Type       string `json:"type"`
-	Address    string `json:"address"`
-	Attachment string `json:"attachment"`
-	Secret     string `json:"secret,omitempty"`
+	Type             string `json:"type"`
+	Address          string `json:"address"`
+	Attachment       string `json:"attachment"`
+	Secret           string `json:"secret,omitempty"`
+	RemoteCertVerify bool   `json:"remote_cert_verify"`
 }
 
 // WebhookPolicyForUI defines the structure of webhook policy info display in UI
