@@ -148,13 +148,23 @@ func (w *WebhookPolicyAPI) Post() {
 
 // Put ...
 func (w *WebhookPolicyAPI) Put() {
+	if !w.validateRBAC(rbac.ActionUpdate, w.project.ProjectID) {
+		return
+	}
+
 	id, err := w.GetIDFromURL()
 	if id < 0 || err != nil {
 		w.SendBadRequestError(errors.New("invalid webhook policy ID"))
 		return
 	}
 
-	if !w.validateRBAC(rbac.ActionUpdate, w.project.ProjectID) {
+	oriPolicy, err := webhook.PolicyManager.Get(id)
+	if err != nil {
+		w.SendInternalServerError(fmt.Errorf("failed to get the webhook policy %d: %v", id, err))
+		return
+	}
+	if oriPolicy == nil {
+		w.SendNotFoundError(fmt.Errorf("webhook policy %d not found", id))
 		return
 	}
 
@@ -173,6 +183,7 @@ func (w *WebhookPolicyAPI) Put() {
 		return
 	}
 
+	policy.ID = id
 	// for the sake of UI design, user can create only one webhook policy with each hook type
 	if w.checkHookTypeExist(policy) {
 		return
@@ -183,15 +194,6 @@ func (w *WebhookPolicyAPI) Put() {
 		return
 	}
 
-	oriPolicy, err := webhook.PolicyManager.Get(id)
-	if err != nil {
-		w.SendInternalServerError(fmt.Errorf("failed to get the webhook policy %d: %v", id, err))
-		return
-	}
-	if oriPolicy == nil {
-		w.SendNotFoundError(fmt.Errorf("webhook policy %d not found", id))
-		return
-	}
 	if w.project.ProjectID != oriPolicy.ProjectID {
 		w.SendBadRequestError(fmt.Errorf("webhook policy %d with projectID %d not belong to project %d in URL", id, oriPolicy.ProjectID, w.project.ProjectID))
 		return
