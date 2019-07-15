@@ -52,13 +52,13 @@ func (w *WebhookPolicyAPI) Prepare() {
 
 // Get ...
 func (w *WebhookPolicyAPI) Get() {
-	id, err := w.GetIDFromURL()
-	if err != nil {
-		w.SendBadRequestError(err)
+	if !w.validateRBAC(rbac.ActionRead, w.project.ProjectID) {
 		return
 	}
 
-	if !w.validateRBAC(rbac.ActionRead, w.project.ProjectID) {
+	id, err := w.GetIDFromURL()
+	if err != nil {
+		w.SendBadRequestError(err)
 		return
 	}
 
@@ -240,10 +240,9 @@ func (w *WebhookPolicyAPI) List() {
 	w.WriteJSONData(policies)
 }
 
-// ListGroupByHookType lists policies info grouped by hook type for UI,
+// ListGroupByHookType lists webhook policy trigger info grouped by hook type for UI,
 // displays hook type, status(enabled/disabled), create time, last trigger time
 func (w *WebhookPolicyAPI) ListGroupByHookType() {
-	//
 	projectID := w.project.ProjectID
 	if !w.validateRBAC(rbac.ActionList, projectID) {
 		return
@@ -265,6 +264,11 @@ func (w *WebhookPolicyAPI) ListGroupByHookType() {
 
 // Delete ...
 func (w *WebhookPolicyAPI) Delete() {
+	projectID := w.project.ProjectID
+	if !w.validateRBAC(rbac.ActionDelete, projectID) {
+		return
+	}
+
 	id, err := w.GetIDFromURL()
 	if id < 0 || err != nil {
 		w.SendBadRequestError(errors.New("invalid webhook policy ID"))
@@ -281,18 +285,13 @@ func (w *WebhookPolicyAPI) Delete() {
 		return
 	}
 
-	projectID := policy.ProjectID
-	if projectID == 0 {
+	if policy.ProjectID == 0 {
 		w.SendNotFoundError(fmt.Errorf("webhook policy %d with projectID %d not found", id, projectID))
 		return
 	}
 
-	if w.project.ProjectID != projectID {
-		w.SendBadRequestError(fmt.Errorf("webhook policy %d with projectID %d not belong to project %d in URL", id, projectID, w.project.ProjectID))
-	}
-
-	if !w.validateRBAC(rbac.ActionDelete, projectID) {
-		return
+	if projectID != policy.ProjectID {
+		w.SendBadRequestError(fmt.Errorf("webhook policy %d with projectID %d not belong to project %d in URL", id, policy.ProjectID, projectID))
 	}
 
 	if err = webhook.PolicyManager.Delete(id); err != nil {
