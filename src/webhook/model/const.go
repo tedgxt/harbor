@@ -8,7 +8,7 @@ const (
 	EventTypeUploadChart   = "uploadChart"
 	EventTypeDeleteChart   = "deleteChart"
 	EventTypeDownloadChart = "downloadChart"
-	EventTypeTestPolicy    = "testPolicy"
+	EventTypeTestEndpoint  = "testEndpoint"
 
 	ValidType = 1
 

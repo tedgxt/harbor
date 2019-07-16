@@ -16,27 +16,6 @@ import (
 	"github.com/goharbor/harbor/src/webhook/model"
 )
 
-var testPayload = model.Payload{
-	Type:      model.EventTypeTestPolicy,
-	OccurAt:   time.Now().Unix(),
-	MediaType: "containerImage",
-	EventData: []*model.EventData{
-		{
-			Digest:      "sha256:457f4aa83fc9a6663ab9d1b0a6e2dce25a12a943ed5bf2c1747c58d48bbb4917",
-			Tag:         "testTag",
-			ResourceURL: "repo.harbor.com/testnamespace/repoTest:testTag",
-		},
-	},
-	Repository: &model.Repository{
-		DateCreated:  time.Now().Unix(),
-		Name:         "repoTest",
-		RepoFullName: "testnamespace/repoTest",
-		Namespace:    "testnamespace",
-		RepoType:     "public",
-	},
-	Operator: "test",
-}
-
 // DefaultManager ...
 type DefaultManager struct {
 }
@@ -116,7 +95,10 @@ func (m *DefaultManager) Delete(policyID int64) error {
 
 // Test the specified webhook policy
 func (m *DefaultManager) Test(policy *model.WebhookPolicy) error {
-	p, err := json.Marshal(testPayload)
+	p, err := json.Marshal(model.Payload{
+		Type:    model.EventTypeTestEndpoint,
+		OccurAt: time.Now().Unix(),
+	})
 	if err != nil {
 		return err
 	}

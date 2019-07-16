@@ -9,6 +9,7 @@ import (
 
 	"github.com/goharbor/harbor/src/common/models"
 	"github.com/goharbor/harbor/src/common/rbac"
+	"github.com/goharbor/harbor/src/common/utils"
 	apiModels "github.com/goharbor/harbor/src/core/api/models"
 	"github.com/goharbor/harbor/src/webhook"
 	"github.com/goharbor/harbor/src/webhook/model"
@@ -308,15 +309,7 @@ func (w *WebhookPolicyAPI) Test() {
 		w.SendBadRequestError(err)
 	}
 
-	if !w.validateName(policy) {
-		return
-	}
-
 	if !w.validateTargets(policy) {
-		return
-	}
-
-	if !w.validateHookTypes(policy) {
 		return
 	}
 
@@ -370,6 +363,14 @@ func (w *WebhookPolicyAPI) validateTargets(policy *apiModels.WebhookPolicy) bool
 			w.SendBadRequestError(fmt.Errorf("empty webhook target address with policy %s", policy.Name))
 			return false
 		}
+		url, err := utils.ParseEndpoint(target.Address)
+		if err != nil {
+			w.SendBadRequestError(err)
+			return false
+		}
+		// Prevent SSRF security issue #3755
+		target.Address = url.Scheme + "://" + url.Host + url.Path
+
 		t, ok := webhook.SupportedSendTypes[target.Type]
 		if !ok || t != model.ValidType {
 			w.SendBadRequestError(fmt.Errorf("unsupport target type %s with policy %s", target.Type, policy.Name))
