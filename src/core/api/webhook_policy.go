@@ -454,11 +454,11 @@ func convertToAPIModel(policy *model.WebhookPolicy) (*apiModels.WebhookPolicy, e
 	var targets []*apiModels.HookTarget
 	for _, t := range policy.Targets {
 		target := &apiModels.HookTarget{
-			Type:             t.Type,
-			Address:          t.Address,
-			Secret:           t.Secret,
-			RemoteCertVerify: t.RemoteCertVerify,
-			Attachment:       t.Attachment,
+			Type:           t.Type,
+			Address:        t.Address,
+			Secret:         t.Secret,
+			SkipCertVerify: t.SkipCertVerify,
+			Attachment:     t.Attachment,
 		}
 		targets = append(targets, target)
 	}
@@ -481,11 +481,11 @@ func convertFromAPIModel(policy *apiModels.WebhookPolicy) (*model.WebhookPolicy,
 	targets := []model.HookTarget{}
 	for _, t := range policy.Targets {
 		target := model.HookTarget{
-			Type:             t.Type,
-			Address:          t.Address,
-			Attachment:       t.Attachment,
-			Secret:           t.Secret,
-			RemoteCertVerify: t.RemoteCertVerify,
+			Type:           t.Type,
+			Address:        t.Address,
+			Attachment:     t.Attachment,
+			Secret:         t.Secret,
+			SkipCertVerify: t.SkipCertVerify,
 		}
 		targets = append(targets, target)
 	}

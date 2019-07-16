@@ -106,7 +106,7 @@ func (m *DefaultManager) Test(policy *model.WebhookPolicy) error {
 	for _, target := range policy.Targets {
 		switch target.Type {
 		case "http":
-			return m.policyHTTPTest(target.Address, target.Secret, target.RemoteCertVerify, p)
+			return m.policyHTTPTest(target.Address, target.Secret, target.SkipCertVerify, p)
 		default:
 			return fmt.Errorf("invalid policy target type: %s", target.Type)
 		}
@@ -114,7 +114,7 @@ func (m *DefaultManager) Test(policy *model.WebhookPolicy) error {
 	return nil
 }
 
-func (m *DefaultManager) policyHTTPTest(address, secret string, certVerify bool, payload []byte) error {
+func (m *DefaultManager) policyHTTPTest(address, secret string, skipCertVerify bool, payload []byte) error {
 	p := bytes.NewReader(payload)
 	req, err := http.NewRequest(http.MethodPost, address, p)
 	if err != nil {
@@ -124,9 +124,10 @@ func (m *DefaultManager) policyHTTPTest(address, secret string, certVerify bool,
 	if secret != "" {
 		req.Header.Set("Authorization", "Secret "+secret)
 	}
+	req.Header.Set("Content-Type", "application/json")
 
 	client := http.Client{
-		Transport: registry.GetHTTPTransport(certVerify),
+		Transport: registry.GetHTTPTransport(skipCertVerify),
 	}
 
 	resp, err := client.Do(req)

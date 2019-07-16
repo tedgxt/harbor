@@ -18,9 +18,9 @@ type WebhookPolicy struct {
 
 // HookTarget defines the structure of target a webhook send to
 type HookTarget struct {
-	Type             string
-	Address          string
-	Attachment       string
-	Secret           string
-	RemoteCertVerify bool
+	Type           string
+	Address        string
+	Attachment     string
+	Secret         string
+	SkipCertVerify bool
 }

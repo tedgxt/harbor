@@ -3,8 +3,6 @@ package api
 import (
 	"errors"
 	"fmt"
-	"strconv"
-	"time"
 
 	"github.com/goharbor/harbor/src/common/models"
 	"github.com/goharbor/harbor/src/common/rbac"
@@ -52,27 +50,6 @@ func (w *WebhookExecutionAPI) List() {
 	}
 
 	query.Statuses = w.GetStrings("status")
-
-	startTimeStr := w.GetString("start_time")
-	if len(startTimeStr) != 0 {
-		i, err := strconv.ParseInt(startTimeStr, 10, 64)
-		if err != nil {
-			w.SendBadRequestError(fmt.Errorf("invalid start_time: %s", startTimeStr))
-			return
-		}
-		t := time.Unix(i, 0)
-		query.StartTime = &t
-	}
-	endTimeStr := w.GetString("end_time")
-	if len(startTimeStr) != 0 {
-		i, err := strconv.ParseInt(endTimeStr, 10, 64)
-		if err != nil {
-			w.SendBadRequestError(fmt.Errorf("invalid end_time: %s", endTimeStr))
-			return
-		}
-		t := time.Unix(i, 0)
-		query.EndTime = &t
-	}
 
 	query.Page, query.Size, err = w.GetPaginationParams()
 	if err != nil {
