@@ -4,11 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/goharbor/harbor/src/common/utils/registry"
+	"github.com/goharbor/harbor/src/jobservice/config"
 	"github.com/goharbor/harbor/src/jobservice/job"
 	"github.com/goharbor/harbor/src/jobservice/logger"
 	"net/http"
-	"os"
-	"strconv"
 )
 
 // HTTPNotifier implements the job interface, which send webhook notification by http.
@@ -20,15 +19,10 @@ type HTTPNotifier struct {
 
 // MaxFails returns that how many times this job can fail, get this value from ctx.
 func (hn *HTTPNotifier) MaxFails() uint {
-	if v, ok := os.LookupEnv("WEBHOOK_MAX_HTTP_FAILS"); ok {
-		if result, err := strconv.ParseUint(v, 10, 32); err == nil {
-			return uint(result)
-		}
-	}
-
+	// Get max fails count from config file
 	// Default max fails count is 10, and its max retry interval is around 3h
 	// Large enough to ensure most situations can notify successfully
-	return 10
+	return config.DefaultConfig.WebHookConfig.MaxHttpFails
 }
 
 // ShouldRetry ...

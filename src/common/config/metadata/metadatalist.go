@@ -148,6 +148,5 @@ var (
 		// the unit of expiration is minute, 43200 minutes = 30 days
 		{Name: common.RobotTokenDuration, Scope: UserScope, Group: BasicGroup, EnvKey: "ROBOT_TOKEN_DURATION", DefaultValue: "43200", ItemType: &IntType{}, Editable: true},
 		{Name: common.WebhookEnable, Scope: UserScope, Group: BasicGroup, EnvKey: "WEBHOOK_ENABLE", DefaultValue: "true", ItemType: &BoolType{}, Editable: true},
-		{Name: common.WebhookMaxHTTPFails, Scope: SystemScope, Group: BasicGroup, EnvKey: "WEBHOOK_MAX_HTTP_FAILS", DefaultValue: "10", ItemType: &IntType{}, Editable: true},
 	}
 )
