@@ -2,9 +2,9 @@ package webhook
 
 import (
 	"bytes"
-	"crypto/tls"
 	"fmt"
 	"github.com/goharbor/harbor/src/common"
+	"github.com/goharbor/harbor/src/common/utils/registry"
 	"github.com/goharbor/harbor/src/jobservice/job"
 	"github.com/goharbor/harbor/src/jobservice/logger"
 	"net/http"
@@ -57,15 +57,11 @@ func (hn *HTTPNotifier) init(ctx job.Context, params map[string]interface{}) err
 
 	// default insecureSkipVerify is false
 	insecureSkipVerify := false
-	if v, ok := params["remote_cert_verify"]; ok {
+	if v, ok := params["skip_cert_verify"]; ok {
 		insecureSkipVerify = v.(bool)
 	}
 	hn.client = &http.Client{
-		Transport: &http.Transport{
-			Proxy: http.ProxyFromEnvironment,
-			// when sending notification by https, skip verifying certificate
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: insecureSkipVerify},
-		},
+		Transport: registry.GetHTTPTransport(insecureSkipVerify),
 	}
 
 	return nil
@@ -81,7 +77,7 @@ func (hn *HTTPNotifier) execute(ctx job.Context, params map[string]interface{}) 
 		return err
 	}
 	if v, ok := params["secret"]; ok && len(v.(string)) > 0 {
-		req.Header.Set("Authorization", "Secret"+v.(string))
+		req.Header.Set("Authorization", "Secret "+v.(string))
 	}
 	req.Header.Set("Content-Type", "application/json")
 
