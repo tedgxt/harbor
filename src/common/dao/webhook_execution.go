@@ -64,7 +64,7 @@ func GetWebhookExecutions(query ...*models.WebhookExecutionQuery) ([]*models.Web
 // GetLastTriggerInfosGroupByHookType get webhook executions info including hook type and last trigger time
 func GetLastTriggerInfosGroupByHookType() ([]*models.LastTriggerInfo, error) {
 	o := GetOrmer()
-	sql := `select hook_type, max(creation_time) from webhook_execution group by hook_type`
+	sql := `select hook_type, max(creation_time) as ct from webhook_execution group by hook_type`
 
 	ltInfo := []*models.LastTriggerInfo{}
 	_, err := o.Raw(sql).QueryRows(&ltInfo)
@@ -104,12 +104,6 @@ func webhookExecutionQueryConditions(query ...*models.WebhookExecutionQuery) orm
 	}
 	if len(q.HookTypes) > 0 {
 		qs = qs.Filter("HookType__in", q.HookTypes)
-	}
-	if q.StartTime != nil {
-		qs = qs.Filter("CreationTime__gte", q.StartTime)
-	}
-	if q.EndTime != nil {
-		qs = qs.Filter("EndTime_lte", q.EndTime)
 	}
 	return qs
 }

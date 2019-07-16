@@ -51,13 +51,11 @@ type WebhookExecutionQuery struct {
 	PolicyID  int64
 	Statuses  []string
 	HookTypes []string
-	StartTime *time.Time
-	EndTime   *time.Time
 	Pagination
 }
 
 // LastTriggerInfo records last trigger time of hook type
 type LastTriggerInfo struct {
 	HookType     string    `orm:"column(hook_type)"`
-	CreationTime time.Time `orm:"column(creation_time)"`
+	CreationTime time.Time `orm:"column(ct)"`
 }
