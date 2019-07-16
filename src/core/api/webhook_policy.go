@@ -108,12 +108,6 @@ func (w *WebhookPolicyAPI) Post() {
 		return
 	}
 
-	projectID := policy.ProjectID
-	if w.project.ProjectID != projectID {
-		w.SendBadRequestError(fmt.Errorf("project ID in url %d not match project ID %d in request body", w.project.ProjectID, projectID))
-		return
-	}
-
 	if !w.validateTargets(policy) {
 		return
 	}
@@ -127,13 +121,14 @@ func (w *WebhookPolicyAPI) Post() {
 		return
 	}
 
-	policy.Creator = w.SecurityCtx.GetUsername()
 	ply, err := convertFromAPIModel(policy)
 	if err != nil {
 		w.SendInternalServerError(fmt.Errorf("failed to convert webhook policy from api model: %v", err))
 		return
 	}
 
+	ply.Creator = w.SecurityCtx.GetUsername()
+	ply.ProjectID = w.project.ProjectID
 	id, err := webhook.PolicyManager.Create(ply)
 
 	if err != nil {
@@ -180,13 +175,6 @@ func (w *WebhookPolicyAPI) Put() {
 		return
 	}
 
-	policy.ID = id
-
-	if w.project.ProjectID != policy.ProjectID {
-		w.SendBadRequestError(fmt.Errorf("project ID in url %d not match project ID %d in request body", w.project.ProjectID, policy.ProjectID))
-		return
-	}
-
 	if w.project.ProjectID != oriPolicy.ProjectID {
 		w.SendBadRequestError(fmt.Errorf("webhook policy %d with projectID %d not belong to project %d in URL", id, oriPolicy.ProjectID, w.project.ProjectID))
 		return
@@ -198,6 +186,7 @@ func (w *WebhookPolicyAPI) Put() {
 		return
 	}
 	ply.ID = id
+	ply.ProjectID = w.project.ProjectID
 
 	if err = webhook.PolicyManager.Update(ply); err != nil {
 		w.SendInternalServerError(fmt.Errorf("failed to update the webhook policy: %v", err))
@@ -346,13 +335,13 @@ func (w *WebhookPolicyAPI) validatePolicyExist() bool {
 }
 
 func (w *WebhookPolicyAPI) validateName(policy *apiModels.WebhookPolicy) bool {
-	p, err := webhook.PolicyManager.GetByNameAndProjectID(policy.Name, policy.ProjectID)
+	p, err := webhook.PolicyManager.GetByNameAndProjectID(policy.Name, w.project.ProjectID)
 	if err != nil {
 		w.SendInternalServerError(fmt.Errorf("failed to get webhook policy %s: %v", policy.Name, err))
 		return false
 	}
 	if p != nil {
-		w.SendConflictError(fmt.Errorf("webhook policy %s in project %d already exists", policy.Name, policy.ProjectID))
+		w.SendConflictError(fmt.Errorf("webhook policy %s in project %d already exists", policy.Name, w.project.ProjectID))
 		return false
 	}
 	return true
@@ -406,9 +395,9 @@ func (w *WebhookPolicyAPI) validateHookTypes(policy *apiModels.WebhookPolicy) bo
 
 // distinguish POST（ID==0) or PUT(ID!=0) by ID in policy
 func (w *WebhookPolicyAPI) checkHookTypeExist(policy *apiModels.WebhookPolicy) bool {
-	_, policies, err := webhook.PolicyManager.List(policy.ProjectID)
+	_, policies, err := webhook.PolicyManager.List(w.project.ProjectID)
 	if err != nil {
-		w.SendInternalServerError(fmt.Errorf("failed to list webhook policies by projectID %d: %v", policy.ProjectID, err))
+		w.SendInternalServerError(fmt.Errorf("failed to list webhook policies by projectID %d: %v", w.project.ProjectID, err))
 		// if err occurred, return true so that API handler return error directly
 		return true
 	}
@@ -449,7 +438,6 @@ func convertToAPIModel(policy *model.WebhookPolicy) (*apiModels.WebhookPolicy, e
 		ID:           policy.ID,
 		Name:         policy.Name,
 		Description:  policy.Description,
-		ProjectID:    policy.ProjectID,
 		HookTypes:    policy.HookTypes,
 		CreationTime: policy.CreationTime,
 		UpdateTime:   policy.UpdateTime,
@@ -476,9 +464,7 @@ func convertFromAPIModel(policy *apiModels.WebhookPolicy) (*model.WebhookPolicy,
 	ply := &model.WebhookPolicy{
 		Name:         policy.Name,
 		Description:  policy.Description,
-		ProjectID:    policy.ProjectID,
 		HookTypes:    policy.HookTypes,
-		Creator:      policy.Creator,
 		CreationTime: policy.CreationTime,
 		UpdateTime:   policy.UpdateTime,
 		Enabled:      policy.Enabled,
@@ -508,7 +494,10 @@ func constructPolicyForUI(policies []*model.WebhookPolicy) ([]*apiModels.Webhook
 				ply := &apiModels.WebhookPolicyForUI{
 					HookType:     t,
 					Enabled:      policy.Enabled,
-					CreationTime: policy.CreationTime,
+					CreationTime: &policy.CreationTime,
+				}
+				if !policy.CreationTime.IsZero() {
+					ply.CreationTime = &policy.CreationTime
 				}
 
 				ltTime, err := getLastTriggerTimeByHookType(t)
@@ -516,7 +505,7 @@ func constructPolicyForUI(policies []*model.WebhookPolicy) ([]*apiModels.Webhook
 					return nil, err
 				}
 				if !ltTime.IsZero() {
-					ply.LastTriggerTime = ltTime
+					ply.LastTriggerTime = &ltTime
 				}
 				res = append(res, ply)
 			}

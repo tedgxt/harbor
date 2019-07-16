@@ -7,7 +7,6 @@ type WebhookPolicy struct {
 	ID           int64         `json:"id"`
 	Name         string        `json:"name"`
 	Description  string        `json:"description"`
-	ProjectID    int64         `json:"project_id"`
 	Targets      []*HookTarget `json:"targets"`
 	HookTypes    []string      `json:"hook_types"`
 	Creator      string        `json:"creator"`
@@ -27,8 +26,8 @@ type HookTarget struct {
 
 // WebhookPolicyForUI defines the structure of webhook policy info display in UI
 type WebhookPolicyForUI struct {
-	HookType        string    `json:"hook_type"`
-	Enabled         bool      `json:"enabled"`
-	CreationTime    time.Time `json:"creation_time"`
-	LastTriggerTime time.Time `json:"last_trigger_time,omitempty"`
+	HookType        string     `json:"hook_type"`
+	Enabled         bool       `json:"enabled"`
+	CreationTime    *time.Time `json:"creation_time"`
+	LastTriggerTime *time.Time `json:"last_trigger_time,omitempty"`
 }

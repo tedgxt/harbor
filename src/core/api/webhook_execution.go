@@ -36,9 +36,8 @@ func (w *WebhookExecutionAPI) List() {
 		w.SendInternalServerError(fmt.Errorf("failed to get policy %d: %v", policyID, err))
 		return
 	}
-	if policy.ID == 0 {
-		w.SendNotFoundError(fmt.Errorf("policy %v not found", policyID))
-		return
+	if policy == nil {
+		w.SendBadRequestError(fmt.Errorf("policy %d not found", policyID))
 	}
 
 	if !w.validateRBAC(rbac.ActionList, policy.ProjectID) {
