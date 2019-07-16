@@ -46,8 +46,11 @@ func Init() {
 	SupportedHookTypes = make(map[string]int)
 	SupportedSendTypes = make(map[string]int)
 
-	initSupportedWebhookType(model.EventTypePushImage, model.EventTypePullImage, model.EventTypeDeleteImage,
-		model.EventTypeUploadChart, model.EventTypeDeleteChart, model.EventTypeDownloadChart)
+	initSupportedWebhookType(
+		model.EventTypePushImage, model.EventTypePullImage, model.EventTypeDeleteImage,
+		model.EventTypeUploadChart, model.EventTypeDeleteChart, model.EventTypeDownloadChart,
+		model.EventTypeScanningCompleted, model.EventTypeScanningFailed,
+	)
 
 	initSupportedSendType(model.HookSendTypeHTTP)
 

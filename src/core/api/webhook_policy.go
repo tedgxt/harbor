@@ -104,10 +104,11 @@ func (w *WebhookPolicyAPI) Post() {
 		return
 	}
 
-	projectID := policy.ProjectID
-	if !w.validateName(policy) {
+	if !w.validatePolicyExist() {
 		return
 	}
+
+	projectID := policy.ProjectID
 	if w.project.ProjectID != projectID {
 		w.SendBadRequestError(fmt.Errorf("project ID in url %d not match project ID %d in request body", w.project.ProjectID, projectID))
 		return
@@ -123,11 +124,6 @@ func (w *WebhookPolicyAPI) Post() {
 
 	if policy.ID != 0 {
 		w.SendBadRequestError(fmt.Errorf("cannot accept policy creating request with ID: %d", policy.ID))
-		return
-	}
-
-	// for the sake of UI design, user can create only one webhook policy with each hook type
-	if w.checkHookTypeExist(policy) {
 		return
 	}
 
@@ -185,10 +181,6 @@ func (w *WebhookPolicyAPI) Put() {
 	}
 
 	policy.ID = id
-	// for the sake of UI design, user can create only one webhook policy with each hook type
-	if w.checkHookTypeExist(policy) {
-		return
-	}
 
 	if w.project.ProjectID != policy.ProjectID {
 		w.SendBadRequestError(fmt.Errorf("project ID in url %d not match project ID %d in request body", w.project.ProjectID, policy.ProjectID))
@@ -334,6 +326,20 @@ func (w *WebhookPolicyAPI) validateRBAC(action rbac.Action, projectID int64) boo
 	resource := rbac.NewProjectNamespace(project.ProjectID).Resource(rbac.ResourceWebhookPolicy)
 	if !w.SecurityCtx.Can(action, resource) {
 		w.SendForbiddenError(errors.New(w.SecurityCtx.GetUsername()))
+		return false
+	}
+	return true
+}
+
+func (w *WebhookPolicyAPI) validatePolicyExist() bool {
+	count, _, err := webhook.PolicyManager.List(w.project.ProjectID)
+	if err != nil {
+		w.SendInternalServerError(fmt.Errorf("failed to list webhook policy in project %d: %v", w.project.ProjectID, err))
+		return false
+	}
+	// for the sake of UI, user can create only one policy for each project
+	if count == 1 {
+		w.SendConflictError(fmt.Errorf("webhook policy in project %d already exists", w.project.ProjectID))
 		return false
 	}
 	return true
