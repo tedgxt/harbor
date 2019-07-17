@@ -37,7 +37,11 @@ import { TargetExistsValidatorDirective } from '../shared/target-exists-directiv
 import { ProjectLabelComponent } from "../project/project-label/project-label.component";
 import { HelmChartModule } from './helm-chart/helm-chart.module';
 import { RobotAccountComponent } from './robot-account/robot-account.component';
+import { WebhookComponent } from './webhook/webhook.component';
 import { AddRobotComponent } from './robot-account/add-robot/add-robot.component';
+import { WebhookService } from './webhook/webhook.service';
+import { AddWebhookComponent } from './webhook/add-webhook/add-webhook.component';
+import { AddWebhookFormComponent } from './webhook/add-webhook-form/add-webhook-form.component';
 
 @NgModule({
   imports: [
@@ -59,10 +63,13 @@ import { AddRobotComponent } from './robot-account/add-robot/add-robot.component
     ProjectLabelComponent,
     AddGroupComponent,
     RobotAccountComponent,
-    AddRobotComponent
+    WebhookComponent,
+    AddRobotComponent,
+    AddWebhookComponent,
+    AddWebhookFormComponent
   ],
   exports: [ProjectComponent, ListProjectComponent],
-  providers: [ProjectRoutingResolver, MemberService, RobotService]
+  providers: [ProjectRoutingResolver, MemberService, RobotService, WebhookService]
 })
 export class ProjectModule {
 

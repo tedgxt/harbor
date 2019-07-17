@@ -39,7 +39,8 @@ export const enum ConfirmationTargets {
   CONFIG_ROUTE,
   CONFIG_TAB,
   HELM_CHART,
-  HELM_CHART_VERSION
+  HELM_CHART_VERSION,
+  WEBHOOK
 }
 
 export const enum ActionType {
@@ -53,7 +54,7 @@ export const enum ConfirmationState {
   NA, CONFIRMED, CANCEL
 }
 export const enum ConfirmationButtons {
-  CONFIRM_CANCEL, YES_NO, DELETE_CANCEL, CLOSE, SWITCH_CANCEL
+  CONFIRM_CANCEL, YES_NO, DELETE_CANCEL, CLOSE, SWITCH_CANCEL, ENABLE_CANCEL, DISABLE_CANCEL
 }
 
 export const ProjectTypes = { 0: 'PROJECT.ALL_PROJECTS', 1: 'PROJECT.PRIVATE_PROJECTS', 2: 'PROJECT.PUBLIC_PROJECTS' };
