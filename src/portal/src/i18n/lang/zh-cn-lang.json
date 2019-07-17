@@ -226,7 +226,8 @@
         "PROJECTS": "项目",
         "CONFIG": "配置管理",
         "HELMCHART": "Helm Charts",
-        "ROBOT_ACCOUNTS": "机器人账户"
+        "ROBOT_ACCOUNTS": "机器人账户",
+        "WEBHOOKS": "Webhooks"
     },
     "PROJECT_CONFIG": {
         "REGISTRY": "项目仓库",
@@ -321,6 +322,35 @@
         "COPY_SUCCESS": "成功复制 '{{param}}' 的令牌",
         "DELETION_TITLE": "删除账户确认",
         "DELETION_SUMMARY": "你确认删除机器人账户 {{param}}?"
+    },
+    "WEBHOOK": {
+        "EDIT_BUTTON": "EDIT",
+        "ENABLED_BUTTON": "ENABLED",
+        "DISABLED_BUTTON": "DISABLED",
+        "TYPE": "Webhook",
+        "STATUS": "Status",
+        "TIMEOUT": "Timeout",
+        "CREATED": "Created",
+        "ENABLED": "Enabled",
+        "DISABLED": "Disabled",
+        "OF": "of",
+        "ITEMS": "items",
+        "LAST_TRIGGERED": "Last Triggered",
+        "EDIT_WEBHOOK": "Webhook Endpoint",
+        "CREATE_WEBHOOK": "Getting started with webhooks",
+        "EDIT_WEBHOOK_DESC": "Specify the webhook's endpoint for the project",
+        "CREATE_WEBHOOK_DESC": "To get started with webhooks, provide an endpoint and credentials to access the webhook server.",
+        "ENDPOINT_URL": "Endpoint URL",
+        "URL_IS_REQUIRED": "Endpoint URL is required.",
+        "SECRET": "Secret",
+        "VERIFY_REMOTE_CERT": "Verify remote cert",
+        "TEST_ENDPOINT_BUTTON": "TEST ENDPOINT",
+        "CANCEL_BUTTON": "CANCEL",
+        "SAVE_BUTTON": "SAVE",
+        "ENABLED_WEBHOOK_TITLE": "Enable Project Webhooks",
+        "ENABLED_WEBHOOK_SUMMARY": "Do you want to enable webhooks for project ",
+        "DISABLED_WEBHOOK_TITLE": "Disable Project Webhooks",
+        "DISABLED_WEBHOOK_SUMMARY": "Do you want to disable webhooks for project "
     },
     "GROUP": {
         "GROUP": "组",
@@ -682,6 +712,7 @@
         "LABEL": "标签",
         "REPOSITORY": "仓库",
         "REPO_READ_ONLY": "仓库只读",
+        "WEBHOOK_ENABLED": "开启 WEBHOOK",
         "SYSTEM": "系统设置",
         "VULNERABILITY": "漏洞",
         "GC": "垃圾清理",
@@ -732,6 +763,7 @@
             "VERIFY_CERT": "检查来自LDAP服务端的证书",
             "READONLY_TOOLTIP": "选中，表示正在维护状态，不可删除仓库及标签,也不可以推送镜像。",
             "REPO_TOOLTIP": "用户在此模式下无法对图像执行任何操作。",
+            "WEBHOOK_TOOLTIP": "当执行推送，拉动，删除，扫描图像或图表等特定操作时，启用webhooks以在指定端点接收回调",
             "HOURLY_CRON":"每小时运行一次。相当于 0 0 * * * *",
             "WEEKLY_CRON":"每周一次，周六/周日午夜之间开始。相当于 0 0 * * * *",
             "DAILY_CRON":"每天午夜运行一次。相当于 0 0 * * * *"

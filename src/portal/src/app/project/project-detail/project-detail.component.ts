@@ -42,6 +42,7 @@ export class ProjectDetailComponent implements OnInit {
   hasLogListPermission: boolean;
   hasConfigurationListPermission: boolean;
   hasRobotListPermission: boolean;
+  hasWebhookListPermission: boolean;
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -78,13 +79,16 @@ export class ProjectDetailComponent implements OnInit {
       USERSTATICPERMISSION.HELM_CHART.KEY, USERSTATICPERMISSION.HELM_CHART.VALUE.LIST));
     permissionsList.push(this.userPermissionService.getPermission(projectId,
       USERSTATICPERMISSION.ROBOT.KEY, USERSTATICPERMISSION.ROBOT.VALUE.LIST));
+    // webhook list
+    permissionsList.push(this.userPermissionService.getPermission(projectId,
+      USERSTATICPERMISSION.WEBHOOK.KEY, USERSTATICPERMISSION.WEBHOOK.VALUE.LIST));
     permissionsList.push(this.userPermissionService.getPermission(projectId,
       USERSTATICPERMISSION.LABEL.KEY, USERSTATICPERMISSION.LABEL.VALUE.CREATE));
     forkJoin(...permissionsList).subscribe(Rules => {
       [this.hasLogListPermission, this.hasConfigurationListPermission, this.hasMemberListPermission
         , this.hasLabelListPermission, this.hasRepositoryListPermission, this.hasHelmChartsListPermission, this.hasRobotListPermission
-        , this.hasLabelCreatePermission] = Rules;
-
+        , this.hasWebhookListPermission, this.hasLabelCreatePermission] = Rules;
+        
     }, error => this.errorHandler.error(error));
   }
 

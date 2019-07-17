@@ -130,5 +130,12 @@ export const USERSTATICPERMISSION = {
             "READ": "read",
         }
     },
+    "WEBHOOK": {
+        'KEY': 'webhook',
+        'VALUE': {
+            "LIST": "list",
+            "READ": "read",
+        }
+    },
 };
 

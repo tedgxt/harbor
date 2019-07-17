@@ -27,5 +27,13 @@
             <button type="button" class="btn btn-primary"  [hidden]="isDelete">{{'BUTTON.SWITCH' | translate}}</button>
             <button type="button" class="btn btn-primary" (click)="cancel()" [disabled]="'true'"  [hidden]="!isDelete">{{'BUTTON.CLOSE' | translate}}</button>
         </ng-template>
+        <ng-template [ngSwitchCase]="5">
+            <button type="button" class="btn btn-outline" (click)="cancel()">{{'BUTTON.CANCEL' | translate}}</button>
+            <button type="button" class="btn btn-primary">{{'BUTTON.ENABLE' | translate}}</button>
+        </ng-template>
+        <ng-template [ngSwitchCase]="6">
+            <button type="button" class="btn btn-outline" (click)="cancel()">{{'BUTTON.CANCEL' | translate}}</button>
+            <button type="button" class="btn btn-primary">{{'BUTTON.DISABLE' | translate}}</button>
+        </ng-template>
     </div>
 </clr-modal>
