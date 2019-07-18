@@ -64,6 +64,7 @@ func (w *WebhookJobAPI) List() {
 	}
 	if policy == nil {
 		w.SendBadRequestError(fmt.Errorf("policy %d not found", policyID))
+		return
 	}
 
 	query := &models.WebhookJobQuery{
@@ -75,6 +76,7 @@ func (w *WebhookJobAPI) List() {
 	query.Page, query.Size, err = w.GetPaginationParams()
 	if err != nil {
 		w.SendBadRequestError(err)
+		return
 	}
 
 	total, jobs, err := webhook.JobCtl.ListWebhookJobs(query)

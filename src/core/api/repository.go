@@ -400,7 +400,7 @@ func (ra *RepositoryAPI) Delete() {
 }
 
 // build and publish image delete event, cannot get image corresponding digest once image has been deleted
-// so image delete event data will not include digest
+// so image delete event data will not include digest info
 func (ra *RepositoryAPI) buildAndPublishImageDeleteEvent(repoName string, tags []string, project *models.Project) {
 	// build image delete event
 	evt := &notifierEvt.ImageEvent{
@@ -411,18 +411,14 @@ func (ra *RepositoryAPI) buildAndPublishImageDeleteEvent(repoName string, tags [
 	}
 
 	for _, t := range tags {
-		e := &models.Event{
-			Target: &models.Target{
-				Tag: t,
-			},
-		}
-		evt.Events = append(evt.Events, e)
+		res := &notifierEvt.Resource{Tag: t}
+		evt.Resource = append(evt.Resource, res)
 	}
 
 	// publish image delete event
 	err := notifier.Publish(topic.DeleteImageTopic, evt)
 	if err != nil {
-		log.Errorf("failed to publish on image topic with delete event: %v", err)
+		log.Errorf("failed to publish image topic %s with delete event: %v", topic.DeleteImageTopic, err)
 	}
 	log.Debugf("published image topic for delete event: %v", evt)
 }

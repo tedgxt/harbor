@@ -18,9 +18,9 @@ type WebhookPolicy struct {
 	Name         string       `orm:"column(name)" json:"name"`
 	Description  string       `orm:"column(description)" json:"description"`
 	ProjectID    int64        `orm:"column(project_id)" json:"project_id"`
-	TargetsDB    string       `orm:"column(targets)" json:"-"`
+	TargetsDB    string       `orm:"column(targets)"`
 	Targets      []HookTarget `orm:"-" json:"targets"`
-	HookTypesDB  string       `orm:"column(hook_types)" json:"-"`
+	HookTypesDB  string       `orm:"column(hook_types)"`
 	HookTypes    []string     `orm:"-" json:"hook_types"`
 	Creator      string       `orm:"column(creator)" json:"creator"`
 	CreationTime time.Time    `orm:"column(creation_time);auto_now_add" json:"creation_time"`
@@ -47,7 +47,7 @@ func (w *WebhookPolicy) ConvertToDBModel() error {
 		if err != nil {
 			return err
 		}
-		w.TargetsDB = string(hookTypes)
+		w.HookTypesDB = string(hookTypes)
 	}
 
 	return nil
@@ -55,19 +55,28 @@ func (w *WebhookPolicy) ConvertToDBModel() error {
 
 // ConvertFromDBModel convert from DB model data to struct data
 func (w *WebhookPolicy) ConvertFromDBModel() error {
-	if len(w.TargetsDB) != 0 {
-		err := json.Unmarshal([]byte(w.TargetsDB), &w.Targets)
-		if err != nil {
-			return err
-		}
+	if w == nil {
+		return nil
 	}
 
-	if len(w.HookTypesDB) != 0 {
-		err := json.Unmarshal([]byte(w.HookTypesDB), &w.HookTypes)
+	targets := []HookTarget{}
+	if len(w.TargetsDB) != 0 {
+		err := json.Unmarshal([]byte(w.TargetsDB), &targets)
 		if err != nil {
 			return err
 		}
 	}
+	w.Targets = targets
+
+	types := []string{}
+	if len(w.HookTypesDB) != 0 {
+		err := json.Unmarshal([]byte(w.HookTypesDB), &types)
+		if err != nil {
+			return err
+		}
+	}
+	w.HookTypes = types
+
 	return nil
 }
 
@@ -101,7 +110,7 @@ type WebhookJobQuery struct {
 type HookTarget struct {
 	Type           string `json:"type"`
 	Address        string `json:"address"`
-	Token          string `json:"token"`
+	Token          string `json:"token,omitempty"`
 	SkipCertVerify bool   `json:"skip_cert_verify"`
 }
 

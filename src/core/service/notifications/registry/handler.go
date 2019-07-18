@@ -174,11 +174,16 @@ func buildAndPublishImagePullOrPushEvent(topic string, project *models.Project, 
 		Operator: event.Actor.Name,
 		RepoName: event.Target.Repository,
 	}
-	e.Events = append(e.Events, event)
+
+	res := &notifyEvt.Resource{
+		Tag:    event.Target.Tag,
+		Digest: event.Target.Digest,
+	}
+	e.Resource = append(e.Resource, res)
 
 	err := notifier.Publish(topic, e)
 	if err != nil {
-		log.Errorf("failed to publish on image topic with pull event: %v", err)
+		log.Errorf("failed to publish image topic %s with pull event: %v", topic, err)
 		return
 	}
 	log.Debugf("published image topic for pull event: %v", e)

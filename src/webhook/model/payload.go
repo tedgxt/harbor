@@ -24,7 +24,7 @@ type Resource struct {
 
 // Repository info of webhook event
 type Repository struct {
-	DateCreated  int64  `json:"date_created"`
+	DateCreated  int64  `json:"date_created,omitempty"`
 	Name         string `json:"name"`
 	Namespace    string `json:"namespace"`
 	RepoFullName string `json:"repo_full_name"`

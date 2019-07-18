@@ -18,8 +18,14 @@ type Event struct {
 // ImageEvent ...
 type ImageEvent struct {
 	Project  *models.Project
-	Events   []*models.Event
+	Resource []*Resource
 	OccurAt  time.Time
 	Operator string
 	RepoName string
+}
+
+// Resource include digest and tag
+type Resource struct {
+	Digest string
+	Tag    string
 }

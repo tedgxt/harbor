@@ -128,9 +128,6 @@ func (m *DefaultManager) policyHTTPTest(address string, skipCertVerify bool, p [
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode < 200 || resp.StatusCode > 300 {
-		return fmt.Errorf("policy test failed with response code %d", resp.StatusCode)
-	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Error("read policy test response body failed: %v", err)

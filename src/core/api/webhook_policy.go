@@ -274,6 +274,7 @@ func (w *WebhookPolicyAPI) Delete() {
 
 	if projectID != policy.ProjectID {
 		w.SendBadRequestError(fmt.Errorf("webhook policy %d with projectID %d not belong to project %d in URL", id, policy.ProjectID, projectID))
+		return
 	}
 
 	if err = webhook.PolicyCtl.Delete(id); err != nil {
@@ -288,6 +289,7 @@ func (w *WebhookPolicyAPI) Test() {
 	isValid, err := w.DecodeJSONReqAndValidate(policy)
 	if !isValid {
 		w.SendBadRequestError(err)
+		return
 	}
 
 	if !w.validateTargets(policy) {
@@ -393,29 +395,6 @@ func (w *WebhookPolicyAPI) validateHookTypes(policy *apiModels.WebhookPolicy) bo
 	return true
 }
 
-// distinguish POST（ID==0) or PUT(ID!=0) by ID in policy
-func (w *WebhookPolicyAPI) checkHookTypeExist(policy *apiModels.WebhookPolicy) bool {
-	_, policies, err := webhook.PolicyCtl.List(w.project.ProjectID)
-	if err != nil {
-		w.SendInternalServerError(fmt.Errorf("failed to list webhook policies by projectID %d: %v", w.project.ProjectID, err))
-		// if err occurred, return true so that API handler return error directly
-		return true
-	}
-
-	for _, hookType := range policy.HookTypes {
-		for _, ply := range policies {
-			for _, t := range ply.HookTypes {
-				if hookType == t && ply.ID != policy.ID {
-					// PUT operation allows hook type existed in database with same policy ID
-					w.SendBadRequestError(fmt.Errorf("policy with hook type %s already exist", t))
-					return true
-				}
-			}
-		}
-	}
-	return false
-}
-
 func getLastTriggerTimeByHookType(hookType string, policyID int64) (time.Time, error) {
 	infos, err := webhook.JobCtl.ListLastTriggerInfos(policyID)
 	if err != nil {
@@ -484,6 +463,8 @@ func convertFromAPIModel(policy *apiModels.WebhookPolicy) (*models.WebhookPolicy
 	return ply, nil
 }
 
+// constructPolicyForUI construct webhook policy information displayed in UI
+// including hook type, enabled, creation time, last trigger time
 func constructPolicyForUI(policies []*models.WebhookPolicy) ([]*apiModels.WebhookPolicyForUI, error) {
 	res := []*apiModels.WebhookPolicyForUI{}
 	if policies != nil {
