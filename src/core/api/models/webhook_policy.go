@@ -19,8 +19,7 @@ type WebhookPolicy struct {
 type HookTarget struct {
 	Type           string `json:"type"`
 	Address        string `json:"address"`
-	Attachment     string `json:"attachment"`
-	Secret         string `json:"secret,omitempty"`
+	Token          string `json:"token,omitempty"`
 	SkipCertVerify bool   `json:"skip_cert_verify"`
 }
 

@@ -1,4 +1,4 @@
-package scheduler
+package webhook
 
 import (
 	"encoding/json"
@@ -50,7 +50,7 @@ func (h *HTTPScheduler) process(item *hook.ScheduleItem) error {
 	j.Parameters = map[string]interface{}{
 		"payload":          string(payload),
 		"address":          item.Target.Address,
-		"secret":           item.Target.Secret,
+		"token":            item.Target.Token,
 		"skip_cert_verify": item.Target.SkipCertVerify,
 	}
 	return webhook.HookManager.StartHook(item, j)
