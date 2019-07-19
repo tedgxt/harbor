@@ -71,7 +71,7 @@ func (hm *DefaultManager) StartHook(item *ScheduleItem, data *models.JobData) er
 	jobUUID, err := hm.client.SubmitJob(data)
 	if err != nil {
 		log.Errorf("failed to process the webhook event: %v", err)
-		e := hm.jobMgr.UpdateJobStatus(id, cModels.JobError, "")
+		e := hm.jobMgr.UpdateJobStatus(id, cModels.JobError)
 		if e != nil {
 			log.Errorf("failed to update the webhook job status %d: %v", id, e)
 		}
