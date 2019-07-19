@@ -49,6 +49,18 @@ func (d *DefaultManager) Update(job *models.WebhookJob, props ...string) error {
 	return nil
 }
 
+// UpdateJobStatus ...
+func (d *DefaultManager) UpdateJobStatus(jobID int64, status string, statusCondition ...string) error {
+	n, err := dao.UpdateWebhookJobStatus(jobID, status, statusCondition...)
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return fmt.Errorf("Update webhook job %d status -> %s failed ", jobID, status)
+	}
+	return nil
+}
+
 // ListLastTriggerInfos ...
 func (d *DefaultManager) ListLastTriggerInfos(policyID int64) ([]*models.LastTriggerInfo, error) {
 	return dao.GetLastTriggerInfosGroupByHookType(policyID)

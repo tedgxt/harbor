@@ -68,26 +68,27 @@ func (hm *DefaultManager) StartHook(item *ScheduleItem, data *models.JobData) er
 	log.Debugf("created a webhook job %d for the policy %d", id, item.PolicyID)
 
 	// submit hook job to jobservice
-	go func() {
-		whJob := &cModels.WebhookJob{
-			ID:         id,
-			UpdateTime: time.Now(),
-		}
-
-		jobUUID, err := hm.client.SubmitJob(data)
-		if err != nil {
-			log.Errorf("failed to process the webhook event: %v", err)
-			e := hm.jobMgr.Update(whJob, "Status", "UpdateTime")
-			if e != nil {
-				log.Errorf("failed to update the webhook job %d: %v", id, e)
-			}
-			return
-		}
-		whJob.UUID = jobUUID
-		e := hm.jobMgr.Update(whJob, "UUID", "UpdateTime")
+	jobUUID, err := hm.client.SubmitJob(data)
+	if err != nil {
+		log.Errorf("failed to process the webhook event: %v", err)
+		e := hm.jobMgr.UpdateJobStatus(id, cModels.JobError, "")
 		if e != nil {
-			log.Errorf("failed to update the webhook job %d: %v", id, e)
+			log.Errorf("failed to update the webhook job status %d: %v", id, e)
 		}
-	}()
+		return err
+	}
+	err = hm.jobMgr.UpdateJobStatus(id, cModels.JobRunning, cModels.JobPending)
+	if err != nil {
+		log.Errorf("failed to update the webhook job status %d: %v", id, err)
+		return err
+	}
+
+	if err = hm.jobMgr.Update(&cModels.WebhookJob{
+		ID:   id,
+		UUID: jobUUID,
+	}, "UUID"); err != nil {
+		log.Errorf("failed to update the webhook job %d: %v", id, err)
+		return err
+	}
 	return nil
 }

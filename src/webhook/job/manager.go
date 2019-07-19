@@ -15,6 +15,9 @@ type Manager interface {
 	// Update update webhook job
 	Update(job *models.WebhookJob, props ...string) error
 
+	// UpdateJobStatus update webhook job status
+	UpdateJobStatus(jobID int64, status string, statusCondition ...string) error
+
 	// ListLastTriggerInfos list jobs info including hook type and last trigger time
 	ListLastTriggerInfos(policyID int64) ([]*models.LastTriggerInfo, error)
 }

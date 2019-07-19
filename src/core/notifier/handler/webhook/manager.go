@@ -17,19 +17,6 @@ import (
 	"github.com/goharbor/harbor/src/webhook/model"
 )
 
-func getRepository(projectID int64, repoName string) (*models.RepoRecord, error) {
-	repoRecord, err := dao.GetRepositoryByName(repoName)
-	if err != nil {
-		log.Errorf("failed to get repository with projectID %d, name %s: %v", projectID, repoName, err)
-		return nil, err
-	}
-	if repoRecord == nil {
-		log.Debugf("get empty repository with projectID %d, name %s", projectID, repoName)
-		return nil, nil
-	}
-	return repoRecord, nil
-}
-
 func getNameFromRepoFullName(repo string) string {
 	idx := strings.Index(repo, "/")
 	return repo[idx+1:]
@@ -40,7 +27,7 @@ func buildImageResourceURL(extURL, repoName, tag string) (string, error) {
 	return resURL, nil
 }
 
-func constructPushPullImagePayload(event *event.ImageEvent, hookType string) (*model.Payload, error) {
+func constructImagePayload(event *event.ImageEvent, hookType string) (*model.Payload, error) {
 	repoName := event.RepoName
 	if repoName == "" {
 		return nil, fmt.Errorf("invalid %s event with empty repo name", hookType)
@@ -66,11 +53,16 @@ func constructPushPullImagePayload(event *event.ImageEvent, hookType string) (*m
 		},
 		Operator: event.Operator,
 	}
-	repoRecord, err := getRepository(event.Project.ProjectID, repoName)
+
+	repoRecord, err := dao.GetRepositoryByName(repoName)
 	if err != nil {
+		log.Errorf("failed to get repository with name %s: %v", repoName, err)
 		return nil, err
 	}
-	if repoRecord != nil {
+	// once repo has been delete, cannot ensure to get repo record
+	if repoRecord == nil {
+		log.Debugf("cannot find repository info with repo %s", repoName)
+	} else {
 		payload.EventData.Repository.DateCreated = repoRecord.CreationTime.Unix()
 	}
 
@@ -162,7 +154,7 @@ func PreprocessAndSendImageHook(hookType string, value interface{}) error {
 		return nil
 	}
 
-	payload, err := constructPushPullImagePayload(imgEvent, hookType)
+	payload, err := constructImagePayload(imgEvent, hookType)
 	if err != nil {
 		return err
 	}

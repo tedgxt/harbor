@@ -18,6 +18,24 @@ func UpdateWebhookJob(job *models.WebhookJob, props ...string) (int64, error) {
 	return o.Update(job, props...)
 }
 
+// UpdateWebhookJobStatus ...
+func UpdateWebhookJobStatus(id int64, status string, statusCondition ...string) (int64, error) {
+	qs := GetOrmer().QueryTable(&models.WebhookJob{}).Filter("id", id)
+	if len(statusCondition) > 0 {
+		qs = qs.Filter("status", statusCondition[0])
+	}
+	params := orm.Params{
+		"status": status,
+	}
+
+	n, err := qs.Update(params)
+	if err != nil {
+		return 0, err
+	}
+	log.Debugf("update webhook job status %d: -> %s", id, status)
+	return n, err
+}
+
 //AddWebhookJob insert new webhook job to DB
 func AddWebhookJob(job *models.WebhookJob) (int64, error) {
 	o := GetOrmer()
