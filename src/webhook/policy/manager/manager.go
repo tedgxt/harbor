@@ -3,7 +3,6 @@ package manager
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -127,10 +126,6 @@ func (m *DefaultManager) policyHTTPTest(address string, skipCertVerify bool, p [
 		return err
 	}
 	defer resp.Body.Close()
-
-	// If the Body is not both read to EOF and closed, the Client's underlying RoundTripper (typically Transport) may
-	// not be able to re-use a persistent TCP connection to the server for a subsequent "keep-alive" request.
-	ioutil.ReadAll(resp.Body)
 	log.Debugf("policy test success with address %s, skip cert verify :%v", address, skipCertVerify)
 
 	return nil
