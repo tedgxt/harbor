@@ -332,7 +332,8 @@
         "COPY_SUCCESS": "Copy token successfully of '{{param}}'",
         "DELETION_TITLE": "Confirm removal of robot accounts",
         "DELETION_SUMMARY": "Do you want to delete robot accounts {{param}}?",
-        "PULL_IS_MUST" : "Pull permission is checked by default and can not be modified."
+        "PULL_IS_MUST" : "Pull permission is checked by default and can not be modified.",
+        "EXPORT_TO_FILE" : "export to file"
     },
     "GROUP": {
         "GROUP": "Group",
@@ -1094,7 +1095,7 @@
         "ADD_SYSTEM": "ADD SYSTEM"
     },
     "TAG_RETENTION": {
-        "TAG_RETENTION": "Tag Retention Policy",
+        "TAG_RETENTION": "Tag Retention",
         "RETENTION_RULES": "Retention rules",
         "RULE_NAME_1": " the images from the last {{number}} days",
         "RULE_NAME_2": " the most recent active {{number}} images",
@@ -1127,11 +1128,11 @@
         "RULE_TEMPLATE_3": "the most recently pushed # images",
         "RULE_TEMPLATE_4": "the most recently pulled # images",
         "RULE_TEMPLATE_5": "always",
-        "ACTION_RETAIN": "Retain",
+        "ACTION_RETAIN": " retain",
         "UNIT_DAY": "DAYS",
         "UNIT_COUNT": "COUNT",
         "NUMBER": "NUMBER",
-        "IN_REPOSITORIES": "Repositories",
+        "IN_REPOSITORIES": "For the repositories",
         "REP_SEPARATOR": "Enter multiple comma separated repos,repo*,or **",
         "TAGS": "Tags",
         "MATCHES_TAGS": "Matches tags",
@@ -1162,7 +1163,10 @@
         "LOWER_LABELS": " labels",
         "WITH_CONDITION": " with",
         "LOWER_TAGS": " tags",
-        "TRIGGER": "Schedule"
+        "TRIGGER": "Schedule",
+        "RETAINED": "Retained",
+        "TOTAL": "Total",
+        "NONE": "none"
     }
 
 }

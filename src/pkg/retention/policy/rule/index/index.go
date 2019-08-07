@@ -17,20 +17,16 @@ package index
 import (
 	"sync"
 
-	"github.com/goharbor/harbor/src/pkg/retention/policy/rule"
-
-	"github.com/goharbor/harbor/src/pkg/retention/policy/rule/latestpl"
-
-	"github.com/goharbor/harbor/src/pkg/retention/policy/rule/latestk"
-
-	"github.com/goharbor/harbor/src/pkg/retention/policy/rule/always"
-
-	"github.com/goharbor/harbor/src/pkg/retention/policy/rule/lastx"
-
-	"github.com/goharbor/harbor/src/pkg/retention/policy/rule/latestps"
-
 	"github.com/goharbor/harbor/src/pkg/retention/policy/action"
-
+	"github.com/goharbor/harbor/src/pkg/retention/policy/rule"
+	"github.com/goharbor/harbor/src/pkg/retention/policy/rule/always"
+	"github.com/goharbor/harbor/src/pkg/retention/policy/rule/dayspl"
+	"github.com/goharbor/harbor/src/pkg/retention/policy/rule/daysps"
+	"github.com/goharbor/harbor/src/pkg/retention/policy/rule/lastx"
+	"github.com/goharbor/harbor/src/pkg/retention/policy/rule/latestk"
+	"github.com/goharbor/harbor/src/pkg/retention/policy/rule/latestpl"
+	"github.com/goharbor/harbor/src/pkg/retention/policy/rule/latestps"
+	"github.com/goharbor/harbor/src/pkg/retention/policy/rule/nothing"
 	"github.com/pkg/errors"
 )
 
@@ -125,12 +121,47 @@ func init() {
 		},
 	}, lastx.New)
 
+	// Register nothing
+	Register(&Metadata{
+		TemplateID: nothing.TemplateID,
+		Action:     action.Retain,
+		Parameters: []*IndexedParam{},
+	}, nothing.New)
+
 	// Register always
 	Register(&Metadata{
 		TemplateID: always.TemplateID,
 		Action:     action.Retain,
 		Parameters: []*IndexedParam{},
 	}, always.New)
+
+	// Register dayspl
+	Register(&Metadata{
+		TemplateID: dayspl.TemplateID,
+		Action:     action.Retain,
+		Parameters: []*IndexedParam{
+			{
+				Name:     dayspl.ParameterN,
+				Type:     "int",
+				Unit:     "days",
+				Required: true,
+			},
+		},
+	}, dayspl.New)
+
+	// Register daysps
+	Register(&Metadata{
+		TemplateID: daysps.TemplateID,
+		Action:     action.Retain,
+		Parameters: []*IndexedParam{
+			{
+				Name:     daysps.ParameterN,
+				Type:     "int",
+				Unit:     "days",
+				Required: true,
+			},
+		},
+	}, daysps.New)
 }
 
 // Register the rule evaluator with the corresponding rule template

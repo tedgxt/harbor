@@ -248,7 +248,6 @@ func (bs *Bootstrap) loadAndRunRedisWorkerPool(
 			job.Replication:            (*replication.Replication)(nil),
 			job.ReplicationScheduler:   (*replication.Scheduler)(nil),
 			job.Retention:              (*retention.Job)(nil),
-			job.RetentionDel:           (*retention.DelRepoJob)(nil),
 			scheduler.JobNameScheduler: (*scheduler.PeriodicJob)(nil),
 			job.WebhookJob:             (*notification.WebhookJob)(nil),
 		}); err != nil {
@@ -266,9 +265,8 @@ func (bs *Bootstrap) loadAndRunRedisWorkerPool(
 // Get a redis connection pool
 func (bs *Bootstrap) getRedisPool(redisURL string) *redis.Pool {
 	return &redis.Pool{
-		MaxActive: 6,
-		MaxIdle:   6,
-		Wait:      true,
+		MaxIdle: 6,
+		Wait:    true,
 		Dial: func() (redis.Conn, error) {
 			return redis.DialURL(
 				redisURL,

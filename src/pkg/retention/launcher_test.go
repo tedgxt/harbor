@@ -76,6 +76,14 @@ func (f *fakeRepositoryManager) ListChartRepositories(projectID int64) ([]*chart
 
 type fakeRetentionManager struct{}
 
+func (f *fakeRetentionManager) GetTotalOfRetentionExecs(policyID int64) (int64, error) {
+	return 0, nil
+}
+
+func (f *fakeRetentionManager) GetTotalOfTasks(executionID int64) (int64, error) {
+	return 0, nil
+}
+
 func (f *fakeRetentionManager) CreatePolicy(p *policy.Metadata) (int64, error) {
 	return 0, nil
 }
@@ -184,7 +192,7 @@ func (l *launchTestSuite) TestGetProjects() {
 func (l *launchTestSuite) TestGetRepositories() {
 	repositories, err := getRepositories(l.projectMgr, l.repositoryMgr, 1, true)
 	require.Nil(l.T(), err)
-	assert.Equal(l.T(), 3, len(repositories))
+	assert.Equal(l.T(), 2, len(repositories))
 	assert.Equal(l.T(), "library", repositories[0].Namespace)
 	assert.Equal(l.T(), "image", repositories[0].Repository)
 	assert.Equal(l.T(), "image", repositories[0].Kind)
@@ -243,11 +251,30 @@ func (l *launchTestSuite) TestLaunch() {
 					},
 				},
 			},
+			{
+				Disabled: true,
+				ScopeSelectors: map[string][]*rule.Selector{
+					"project": {
+						{
+							Kind:       "doublestar",
+							Decoration: "nsMatches",
+							Pattern:    "library1",
+						},
+					},
+					"repository": {
+						{
+							Kind:       "doublestar",
+							Decoration: "repoMatches",
+							Pattern:    "**",
+						},
+					},
+				},
+			},
 		},
 	}
 	n, err = launcher.Launch(ply, 1, false)
 	require.Nil(l.T(), err)
-	assert.Equal(l.T(), int64(3), n)
+	assert.Equal(l.T(), int64(2), n)
 }
 
 func (l *launchTestSuite) TestStop() {

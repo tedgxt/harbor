@@ -111,7 +111,6 @@ func (l *launcher) Launch(ply *policy.Metadata, executionID int64, isDryRun bool
 	if scope == nil {
 		return 0, launcherError(fmt.Errorf("the scope of policy is nil"))
 	}
-	allRepositories := make(map[res.Repository]struct{}, 0)
 	repositoryRules := make(map[res.Repository]*lwp.Metadata, 0)
 	level := scope.Level
 	var allProjects []*res.Candidate
@@ -125,6 +124,10 @@ func (l *launcher) Launch(ply *policy.Metadata, executionID int64, isDryRun bool
 	}
 
 	for _, rule := range ply.Rules {
+		if rule.Disabled {
+			log.Infof("Policy %d rule %d %s is disabled", ply.ID, rule.ID, rule.Template)
+			continue
+		}
 		projectCandidates := allProjects
 		switch level {
 		case "system":
@@ -154,12 +157,6 @@ func (l *launcher) Launch(ply *policy.Metadata, executionID int64, isDryRun bool
 				return 0, launcherError(err)
 			}
 			for _, repository := range repositories {
-				repo := res.Repository{
-					Namespace: repository.Namespace,
-					Name:      repository.Repository,
-					Kind:      repository.Kind,
-				}
-				allRepositories[repo] = struct{}{}
 				repositoryCandidates = append(repositoryCandidates, repository)
 			}
 		}
@@ -193,7 +190,7 @@ func (l *launcher) Launch(ply *policy.Metadata, executionID int64, isDryRun bool
 	}
 
 	// create job data list
-	jobDatas, err := createJobs(allRepositories, repositoryRules, isDryRun)
+	jobDatas, err := createJobs(repositoryRules, isDryRun)
 	if err != nil {
 		return 0, launcherError(err)
 	}
@@ -217,8 +214,7 @@ func (l *launcher) Launch(ply *policy.Metadata, executionID int64, isDryRun bool
 	return int64(len(jobDatas)), nil
 }
 
-func createJobs(allRepositories map[res.Repository]struct{},
-	repositoryRules map[res.Repository]*lwp.Metadata, isDryRun bool) ([]*jobData, error) {
+func createJobs(repositoryRules map[res.Repository]*lwp.Metadata, isDryRun bool) ([]*jobData, error) {
 	jobDatas := []*jobData{}
 	for repository, policy := range repositoryRules {
 		jobData := &jobData{
@@ -240,25 +236,6 @@ func createJobs(allRepositories map[res.Repository]struct{},
 			return nil, err
 		}
 		jobData.JobParams[ParamMeta] = policyJSON
-		jobDatas = append(jobDatas, jobData)
-	}
-	for repository := range allRepositories {
-		if _, exist := repositoryRules[repository]; exist {
-			continue
-		}
-		jobData := &jobData{
-			Repository: repository,
-			JobName:    job.RetentionDel,
-			JobParams:  make(map[string]interface{}, 2),
-		}
-		// set dry run
-		jobData.JobParams[ParamDryRun] = isDryRun
-		// set repository
-		repoJSON, err := repository.ToJSON()
-		if err != nil {
-			return nil, err
-		}
-		jobData.JobParams[ParamRepo] = repoJSON
 		jobDatas = append(jobDatas, jobData)
 	}
 	return jobDatas, nil
@@ -361,10 +338,12 @@ func getProjects(projectMgr project.Manager) ([]*res.Candidate, error) {
 func getRepositories(projectMgr project.Manager, repositoryMgr repository.Manager,
 	projectID int64, chartServerEnabled bool) ([]*res.Candidate, error) {
 	var candidates []*res.Candidate
-	pro, err := projectMgr.Get(projectID)
-	if err != nil {
-		return nil, err
-	}
+	/*
+		pro, err := projectMgr.Get(projectID)
+		if err != nil {
+			return nil, err
+		}
+	*/
 	// get image repositories
 	imageRepositories, err := repositoryMgr.ListImageRepositories(projectID)
 	if err != nil {
@@ -378,20 +357,23 @@ func getRepositories(projectMgr project.Manager, repositoryMgr repository.Manage
 			Kind:       "image",
 		})
 	}
-	if chartServerEnabled {
-		// get chart repositories when chart server is enabled
-		chartRepositories, err := repositoryMgr.ListChartRepositories(projectID)
-		if err != nil {
-			return nil, err
+	// currently, doesn't support retention for chart
+	/*
+		if chartServerEnabled {
+			// get chart repositories when chart server is enabled
+			chartRepositories, err := repositoryMgr.ListChartRepositories(projectID)
+			if err != nil {
+				return nil, err
+			}
+			for _, r := range chartRepositories {
+				candidates = append(candidates, &res.Candidate{
+					Namespace:  pro.Name,
+					Repository: r.Name,
+					Kind:       "chart",
+				})
+			}
 		}
-		for _, r := range chartRepositories {
-			candidates = append(candidates, &res.Candidate{
-				Namespace:  pro.Name,
-				Repository: r.Name,
-				Kind:       "chart",
-			})
-		}
-	}
+	*/
 
 	return candidates, nil
 }
