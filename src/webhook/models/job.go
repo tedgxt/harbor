@@ -15,6 +15,7 @@ type PushEvent struct {
 	Tag          string     `json:"tag"`
 	FullName     string     `json:"full_name"`
 	TriggerTime  time.Time  `json:"trigger_time"`
-	ImageId      string     `json:"image_id"`
+	Digest       string     `json:"digest"`
 	ProjectType  string     `json:"project_type"`
+	ResourceURL  string     `json:"resource_url"`
 }

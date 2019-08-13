@@ -72,7 +72,7 @@ func (wja *WebhookJobAPI) List() {
 		return
 	}
 
-	if _, err := wja.doAuth(policy.ID); err != nil {
+	if _, err := wja.doAuth(policy.ProjectID); err != nil {
 		return
 	}
 

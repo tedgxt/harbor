@@ -70,6 +70,7 @@ func GetWebhookPolicyByName(projectID int64, name string) ([]*models.WebhookPoli
 		sql += ` and name like ?`
 		args = append(args, "%"+Escape(name)+"%")
 	}
+	sql += ` order by creation_time desc`
 
 	var policy []*models.WebhookPolicy
 	_, err := o.Raw(sql, args).QueryRows(&policy)

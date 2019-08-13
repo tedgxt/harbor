@@ -16,8 +16,8 @@ import (
 )
 
 const (
-	Project_Private  = "Private"
-	Project_Public   = "Public"
+	Project_Private  = "private"
+	Project_Public   = "public"
 )
 
 // PushJobGenerator ...
@@ -45,14 +45,16 @@ func (pjg *PushJobGenerator) Generate(policy *models.WebhookPolicy, triggerItems
 		if project.IsPublic() {
 			projectType = Project_Public
 		}
+		extURL, _ := config.ExtURL()
 		event := models.PushEvent{
 			Project:     project.Name,
 			RepoName:    repoName,
 			Tag:         strs[1],
 			FullName:    strs[0],
 			TriggerTime: time.Now().UTC(),
-			ImageId:     getImageID(strs[0], strs[1]),
+			Digest:      getDigest(strs[0], strs[1]),
 			ProjectType: projectType,
+			ResourceURL: fmt.Sprintf("%s/%s", extURL, item.Value),
 		}
 		events = append(events, event)
 	}
@@ -86,4 +88,20 @@ func getImageID(repoName, tag string) string {
 		return deserializedmanifest.Target().Digest.String()
 	}
 	return ""
+}
+
+func getDigest(repoName, tag string) string {
+	client, err := coreutils.NewRepositoryClientForUI("harbor-core", repoName)
+	if err != nil {
+		log.Errorf("failed to create repository client: %v", err)
+		return ""
+	}
+	mediaTypes := []string{}
+	mediaTypes = append(mediaTypes, schema2.MediaTypeManifest)
+	digest, _, _, err := client.PullManifest(tag, mediaTypes)
+	if err != nil {
+		log.Errorf("failed to pull manifest: %v", err)
+		return ""
+	}
+	return digest
 }

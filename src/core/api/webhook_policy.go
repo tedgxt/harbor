@@ -216,7 +216,7 @@ func (wpa *WebhookPolicyAPI) Put() {
 	policy.ID = id
 
 	// check projectID, projectID shouldn't be changed
-	if originalPolicy.ProjectID != policy.Project.ProjectID {
+	if policy.Project == nil || originalPolicy.ProjectID != policy.Project.ProjectID {
 		wpa.HandleBadRequest("project shouldn't be changed")
 		return
 	}
