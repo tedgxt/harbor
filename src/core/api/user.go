@@ -226,6 +226,13 @@ func (ua *UserAPI) Post() {
 		ua.RenderError(http.StatusBadRequest, "register error:"+err.Error())
 		return
 	}
+
+	if ua.SelfRegistration && !ua.IsAdmin && user.HasAdminRole {
+		log.Warningf("SelfRegistration for system admin is not allowed.")
+		ua.RenderError(http.StatusForbidden, "forbidden")
+		return
+	}
+
 	userExist, err := dao.UserExists(user, "username")
 	if err != nil {
 		log.Errorf("Error occurred in Register: %v", err)
