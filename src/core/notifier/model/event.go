@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/goharbor/harbor/src/common/models"
+	"github.com/goharbor/harbor/src/pkg/retention/policy/rule"
 	v1 "github.com/goharbor/harbor/src/pkg/scan/rest/v1"
 )
 
@@ -51,6 +52,21 @@ type QuotaEvent struct {
 	Msg       string
 }
 
+// RetentionEvent is tag retention related event data to publish
+type RetentionEvent struct {
+	Repository string
+	EventType  string
+	Hostname   string
+	Project    *models.Project
+	Result     string
+	FailReason string
+	RuleID     int64
+	Rules      []rule.Metadata
+	ImageCount int
+	Retained   int
+	OccurAt    time.Time
+}
+
 // HookEvent is hook related event data to publish
 type HookEvent struct {
 	PolicyID  int64
@@ -76,10 +92,11 @@ type EventData struct {
 
 // Resource describe infos of resource triggered notification
 type Resource struct {
-	Digest       string                 `json:"digest,omitempty"`
-	Tag          string                 `json:"tag"`
-	ResourceURL  string                 `json:"resource_url,omitempty"`
-	ScanOverview map[string]interface{} `json:"scan_overview,omitempty"`
+	Digest            string                 `json:"digest,omitempty"`
+	Tag               string                 `json:"tag"`
+	ResourceURL       string                 `json:"resource_url,omitempty"`
+	ScanOverview      map[string]interface{} `json:"scan_overview,omitempty"`
+	RetentionOverView *RetentionOverView     `json:"retention_overview,omitempty"`
 }
 
 // Repository info of notification event
@@ -89,4 +106,10 @@ type Repository struct {
 	Namespace    string `json:"namespace"`
 	RepoFullName string `json:"repo_full_name"`
 	RepoType     string `json:"repo_type"`
+}
+
+// RetentionOverView describes retention overview infos
+type RetentionOverView struct {
+	Total    int
+	Retained int
 }

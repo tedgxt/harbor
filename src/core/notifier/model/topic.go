@@ -22,6 +22,8 @@ const (
 	QuotaWarningTopic = "OnQuotaWarning"
 	// QuotaExceedTopic is topic for quota exceeded event
 	QuotaExceedTopic = "OnQuotaExceed"
+	// TagRetentionTopic is topic for tag retention event
+	TagRetentionTopic = "OnTagRetention"
 
 	// WebhookTopic is topic for sending webhook payload
 	WebhookTopic = "http"

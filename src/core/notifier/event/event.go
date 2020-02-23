@@ -5,9 +5,11 @@ import (
 
 	"github.com/goharbor/harbor/src/common/models"
 	"github.com/goharbor/harbor/src/common/utils/log"
+	"github.com/goharbor/harbor/src/core/config"
 	"github.com/goharbor/harbor/src/core/notifier"
 	"github.com/goharbor/harbor/src/core/notifier/model"
 	notifyModel "github.com/goharbor/harbor/src/pkg/notification/model"
+	"github.com/goharbor/harbor/src/pkg/retention/policy"
 	v1 "github.com/goharbor/harbor/src/pkg/scan/rest/v1"
 	"github.com/pkg/errors"
 )
@@ -260,6 +262,38 @@ func (q *QuotaMetaData) Resolve(evt *Event) error {
 	}
 
 	evt.Topic = topic
+	evt.Data = data
+	return nil
+}
+
+// // TagRetentionMetaData defines retention related event data
+type RetentionMetaData struct {
+	Tag        string
+	Repository string
+	Trigger    string
+	Total      int
+	Retained   int
+	Result     string
+	Project    *models.Project
+	Policy     *policy.Metadata
+}
+
+// Resolve tag retention event into common image event
+func (r *RetentionMetaData) Resolve(evt *Event) error {
+	hostname, _ := config.ExtURL()
+	data := &model.RetentionEvent{
+		EventType:  notifyModel.EventTypeTagRetention,
+		Repository: r.Repository,
+		Hostname:   hostname,
+		Result:     r.Result,
+		Project:    r.Project,
+		RuleID:     r.Policy.ID,
+		Retained:   r.Retained,
+		ImageCount: r.Total,
+		OccurAt:    time.Now(),
+	}
+
+	evt.Topic = model.TagRetentionTopic
 	evt.Data = data
 	return nil
 }

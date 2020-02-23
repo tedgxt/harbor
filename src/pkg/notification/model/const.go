@@ -12,6 +12,7 @@ const (
 	EventTypeScanningFailed    = "scanningFailed"
 	EventTypeTestEndpoint      = "testEndpoint"
 	EventTypeProjectQuota      = "projectQuota"
+	EventTypeTagRetention      = "tagRetention"
 
 	NotifyTypeHTTP = "http"
 )

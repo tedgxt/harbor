@@ -16,13 +16,14 @@ package jobs
 
 import (
 	"encoding/json"
-	"github.com/goharbor/harbor/src/core/service/notifications"
 	"time"
 
 	"github.com/goharbor/harbor/src/common/job"
 	"github.com/goharbor/harbor/src/common/models"
 	"github.com/goharbor/harbor/src/common/utils/log"
+	"github.com/goharbor/harbor/src/core/config"
 	"github.com/goharbor/harbor/src/core/notifier/event"
+	"github.com/goharbor/harbor/src/core/service/notifications"
 	jjob "github.com/goharbor/harbor/src/jobservice/job"
 	"github.com/goharbor/harbor/src/pkg/notification"
 	"github.com/goharbor/harbor/src/pkg/retention"
@@ -175,6 +176,71 @@ func (h *Handler) HandleRetentionTask() {
 			log.Errorf("failed to resolve checkin of retention task %d: %v", taskID, err)
 			return
 		}
+
+		//
+		// Trigger retention webhook event only for Success, Error and Stopped status
+		if h.status == jjob.SuccessStatus.String() ||
+			h.status == jjob.ErrorStatus.String() ||
+			h.status == jjob.StoppedStatus.String() {
+
+			retentionMgr := retention.NewManager()
+			task, err := retentionMgr.GetTask(h.id)
+			if err != nil {
+				log.Error(errors.Wrap(err, "retention hook handler: event publish"))
+			}
+			if task == nil {
+				log.Error(errors.Wrap(err, "retention hook handler: event publish"))
+			}
+
+			// get retention execution
+			execution, err := retentionMgr.GetExecution(task.ExecutionID)
+			if err != nil {
+				log.Error(errors.Wrap(err, "retention hook handler: event publish"))
+			}
+			if execution == nil {
+				log.Error(errors.Wrap(err, "retention hook handler: event publish"))
+			}
+
+			// get retention policy
+			policy, err := retentionMgr.GetPolicy(execution.PolicyID)
+			if err != nil {
+				log.Error(errors.Wrap(err, "retention hook handler: event publish"))
+			}
+			if execution == nil {
+				log.Error(errors.Wrap(err, "retention hook handler: event publish"))
+			}
+
+			// TODO: is policy.Scope.Reference is projectID?
+			// get project
+			prj, err := config.GlobalProjectMgr.Get(policy.Scope.Reference)
+			if err != nil {
+				log.Error(errors.Wrap(err, "retention hook handler: event publish"))
+			}
+			if execution == nil {
+				log.Error(errors.Wrap(err, "retention hook handler: event publish"))
+			}
+
+			e := &event.Event{}
+			// TODO: add more info
+			md := &event.RetentionMetaData{
+				Total:      retainObj.Total,
+				Retained:   retainObj.Retained,
+				Repository: task.Repository,
+				Trigger:    execution.Trigger,
+				Result:     h.status,
+				Project:    prj,
+			}
+
+			if err := e.Build(md); err == nil {
+				if err := e.Publish(); err != nil {
+					log.Error(errors.Wrap(err, "retention hook handler: event publish"))
+				}
+			} else {
+				log.Error(errors.Wrap(err, "retention hook handler: event publish"))
+			}
+
+		}
+
 		task := &retention.Task{
 			ID:       taskID,
 			Total:    retainObj.Total,
