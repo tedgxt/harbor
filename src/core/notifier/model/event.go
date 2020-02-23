@@ -65,6 +65,7 @@ type RetentionEvent struct {
 	ImageCount int
 	Retained   int
 	OccurAt    time.Time
+	TaskId     int64
 }
 
 // HookEvent is hook related event data to publish

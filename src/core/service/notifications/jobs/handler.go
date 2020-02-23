@@ -21,7 +21,6 @@ import (
 	"github.com/goharbor/harbor/src/common/job"
 	"github.com/goharbor/harbor/src/common/models"
 	"github.com/goharbor/harbor/src/common/utils/log"
-	"github.com/goharbor/harbor/src/core/config"
 	"github.com/goharbor/harbor/src/core/notifier/event"
 	"github.com/goharbor/harbor/src/core/service/notifications"
 	jjob "github.com/goharbor/harbor/src/jobservice/job"
@@ -181,50 +180,66 @@ func (h *Handler) HandleRetentionTask() {
 		if h.status == jjob.SuccessStatus.String() ||
 			h.status == jjob.ErrorStatus.String() ||
 			h.status == jjob.StoppedStatus.String() {
-
-			retentionMgr := retention.NewManager()
-			task, err := retentionMgr.GetTask(h.id)
-			if err != nil || task == nil {
-				log.Error(errors.Wrap(err, "retention hook handler: event publish"))
-			} else {
-				// get retention execution
-				execution, err := retentionMgr.GetExecution(task.ExecutionID)
-				if err != nil || execution == nil {
-					log.Error(errors.Wrap(err, "retention hook handler: event publish"))
-				} else {
-					// get retention policy
-					policy, err := retentionMgr.GetPolicy(execution.PolicyID)
-					if err != nil || execution == nil {
-						log.Error(errors.Wrap(err, "retention hook handler: event publish"))
-					} else {
-						// FIXME: is policy.Scope.Reference is projectID?
-						// get project
-						prj, err := config.GlobalProjectMgr.Get(policy.Scope.Reference)
-						if err != nil || execution == nil {
-							log.Error(errors.Wrap(err, "retention hook handler: event publish"))
-						}
-
-						e := &event.Event{}
-						// TODO: add more info
-						md := &event.RetentionMetaData{
-							Total:      retainObj.Total,
-							Retained:   retainObj.Retained,
-							Repository: task.Repository,
-							Trigger:    execution.Trigger,
-							Result:     h.status,
-							Project:    prj,
-						}
-
-						if err := e.Build(md); err == nil {
-							if err := e.Publish(); err != nil {
-								log.Error(errors.Wrap(err, "retention hook handler: event publish"))
-							}
-						} else {
-							log.Error(errors.Wrap(err, "retention hook handler: event publish"))
-						}
-					}
-				}
+			e := &event.Event{}
+			// TODO: add more info
+			md := &event.RetentionMetaData{
+				Total:    retainObj.Total,
+				Retained: retainObj.Retained,
+				Result:   h.status,
 			}
+
+			if err := e.Build(md); err == nil {
+				if err := e.Publish(); err != nil {
+					log.Error(errors.Wrap(err, "retention hook handler: event publish"))
+				}
+			} else {
+				log.Error(errors.Wrap(err, "retention hook handler: event publish"))
+			}
+
+			//retentionMgr := retention.NewManager()
+			//task, err := retentionMgr.GetTask(h.id)
+			//if err != nil || task == nil {
+			//	log.Error(errors.Wrap(err, "retention hook handler: event publish"))
+			//} else {
+			//	// get retention execution
+			//	execution, err := retentionMgr.GetExecution(task.ExecutionID)
+			//	if err != nil || execution == nil {
+			//		log.Error(errors.Wrap(err, "retention hook handler: event publish"))
+			//	} else {
+			//		// get retention policy
+			//		// FIXME: cannot get policy or import cycle occurred
+			//		policy, err := retentionMgr.GetPolicy(execution.PolicyID)
+			//		if err != nil || execution == nil {
+			//			log.Error(errors.Wrap(err, "retention hook handler: event publish"))
+			//		} else {
+			//			// FIXME: is policy.Scope.Reference is projectID?
+			//			// get project
+			//			prj, err := config.GlobalProjectMgr.Get(policy.Scope.Reference)
+			//			if err != nil || execution == nil {
+			//				log.Error(errors.Wrap(err, "retention hook handler: event publish"))
+			//			}
+			//
+			//			e := &event.Event{}
+			//			// TODO: add more info
+			//			md := &event.RetentionMetaData{
+			//				Total:      retainObj.Total,
+			//				Retained:   retainObj.Retained,
+			//				Repository: task.Repository,
+			//				Trigger:    execution.Trigger,
+			//				Result:     h.status,
+			//				Project:    prj,
+			//			}
+			//
+			//			if err := e.Build(md); err == nil {
+			//				if err := e.Publish(); err != nil {
+			//					log.Error(errors.Wrap(err, "retention hook handler: event publish"))
+			//				}
+			//			} else {
+			//				log.Error(errors.Wrap(err, "retention hook handler: event publish"))
+			//			}
+			//		}
+			//	}
+			//}
 		}
 
 		task := &retention.Task{

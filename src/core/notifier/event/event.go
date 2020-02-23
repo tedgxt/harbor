@@ -9,7 +9,6 @@ import (
 	"github.com/goharbor/harbor/src/core/notifier"
 	"github.com/goharbor/harbor/src/core/notifier/model"
 	notifyModel "github.com/goharbor/harbor/src/pkg/notification/model"
-	"github.com/goharbor/harbor/src/pkg/retention/policy"
 	v1 "github.com/goharbor/harbor/src/pkg/scan/rest/v1"
 	"github.com/pkg/errors"
 )
@@ -275,22 +274,24 @@ type RetentionMetaData struct {
 	Retained   int
 	Result     string
 	Project    *models.Project
-	Policy     *policy.Metadata
+	//Policy     *policy.Metadata
+	TaskId int64
 }
 
 // Resolve tag retention event into common image event
 func (r *RetentionMetaData) Resolve(evt *Event) error {
 	hostname, _ := config.ExtURL()
 	data := &model.RetentionEvent{
-		EventType:  notifyModel.EventTypeTagRetention,
-		Repository: r.Repository,
-		Hostname:   hostname,
-		Result:     r.Result,
-		Project:    r.Project,
-		RuleID:     r.Policy.ID,
+		EventType: notifyModel.EventTypeTagRetention,
+		//Repository: r.Repository,
+		Hostname: hostname,
+		Result:   r.Result,
+		//Project:    r.Project,
+		//RuleID:     r.Policy.ID,
 		Retained:   r.Retained,
 		ImageCount: r.Total,
 		OccurAt:    time.Now(),
+		TaskId:     r.TaskId,
 	}
 
 	evt.Topic = model.TagRetentionTopic
