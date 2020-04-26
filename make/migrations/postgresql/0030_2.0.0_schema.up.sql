@@ -207,3 +207,6 @@ UPDATE quota_usage SET used = used - 'count';
 /* make Clair and Trivy as reserved name for scanners in-tree */
 UPDATE scanner_registration SET name = concat_ws('-', name, uuid) WHERE name IN ('Clair', 'Trivy') AND immutable = FALSE;
 UPDATE scanner_registration SET name = split_part(name, '-', 1) WHERE immutable = TRUE;
+
+/*update event types in table 'notification_policy'*/
+UPDATE notification_policy SET event_types=replace(replace(replace(replace(replace(replace(replace(replace(event_types,'downloadChart','DOWNLOAD_CHART'),'deleteChart','DELETE_CHART'), 'uploadChart','UPLOAD_CHART'),'deleteImage','DELETE_ARTIFACT'),'pullImage','PULL_ARTIFACT'),'pushImage','PUSH_ARTIFACT'),'scanningFailed','SCANNING_FAILED'),'scanningCompleted','SCANNING_COMPLETED');
