@@ -200,3 +200,6 @@ ALTER TABLE replication_task ALTER COLUMN dst_resource TYPE varchar(512);
 /*remove count from quota hard and quota_usage used json*/
 UPDATE quota SET hard = hard - 'count';
 UPDATE quota_usage SET used = used - 'count';
+
+/*update event types in table 'notification_policy'*/
+UPDATE notification_policy SET event_types=replace(replace(replace(replace(replace(replace(replace(replace(event_types,'downloadChart','DOWNLOAD_CHART'),'deleteChart','DELETE_CHART'), 'uploadChart','UPLOAD_CHART'),'deleteImage','DELETE_ARTIFACT'),'pullImage','PULL_ARTIFACT'),'pushImage','PUSH_ARTIFACT'),'scanningFailed','SCANNING_FAILED'),'scanningCompleted','SCANNING_COMPLETED');
