@@ -147,8 +147,7 @@ _build_clair:
 _build_chart_server:
 	@if [ "$(CHARTFLAG)" = "true" ] ; then \
 		if [ "$(BUILDBIN)" != "true" ] ; then \
-			rm -rf $(DOCKERFILEPATH_CHART_SERVER)/binary && mkdir -p $(DOCKERFILEPATH_CHART_SERVER)/binary && \
-			$(call _get_binary, https://storage.googleapis.com/harbor-builds/bin/chartm, $(DOCKERFILEPATH_CHART_SERVER)/binary/chartm); \
+			echo "make sure chart server binary exist"; \
 		else \
 			cd $(DOCKERFILEPATH_CHART_SERVER) && $(DOCKERFILEPATH_CHART_SERVER)/builder $(GOBUILDIMAGE) $(CHART_SERVER_CODE_BASE) $(CHARTMUSEUMVERSION) $(CHART_SERVER_MAIN_PATH) $(CHART_SERVER_BIN_NAME) && cd - ; \
 		fi ; \
@@ -183,8 +182,7 @@ _build_notary:
 		
 _build_registry:
 	@if [ "$(BUILDBIN)" != "true" ] ; then \
-		rm -rf $(DOCKERFILEPATH_REG)/binary && mkdir -p $(DOCKERFILEPATH_REG)/binary && \
-		$(call _get_binary, https://storage.googleapis.com/harbor-builds/bin/registry, $(DOCKERFILEPATH_REG)/binary/registry); \
+		echo "make sure registry binary exist"; \
 	else \
 		cd $(DOCKERFILEPATH_REG) && $(DOCKERFILEPATH_REG)/builder $(REGISTRYVERSION) && cd - ; \
 	fi
@@ -212,7 +210,7 @@ define _get_binary
 	$(WGET) --timeout 30 --no-check-certificate $1 -O $2
 endef
 
-build: _build_db _build_adminserver _build_portal _build_core _build_jobservice _build_log _build_nginx _build_registry _build_registryctl _build_notary _build_clair _build_redis _build_migrator _build_chart_server
+build: _build_adminserver _build_portal _build_core _build_jobservice _build_registry _build_registryctl _build_chart_server
 
 cleanimage:
 	@echo "cleaning image for photon..."
