@@ -12,6 +12,7 @@ import (
 	"github.com/goharbor/harbor/src/common/utils"
 	"github.com/goharbor/harbor/src/controller/event"
 	"github.com/goharbor/harbor/src/lib/log"
+	"github.com/goharbor/harbor/src/lib/orm"
 	"github.com/goharbor/harbor/src/pkg/notification"
 )
 
@@ -128,6 +129,11 @@ func (w *NotificationPolicyAPI) Post() {
 
 	id, err := notification.PolicyMgr.Create(policy)
 	if err != nil {
+		if e := orm.AsConflictError(err, "notification policy named %s already exists", policy.Name); e != nil {
+			w.SendConflictError(e)
+			return
+		}
+
 		w.SendInternalServerError(fmt.Errorf("failed to create the notification policy: %v", err))
 		return
 	}
@@ -180,6 +186,11 @@ func (w *NotificationPolicyAPI) Put() {
 	policy.ProjectID = w.project.ProjectID
 
 	if err = notification.PolicyMgr.Update(policy); err != nil {
+		if e := orm.AsConflictError(err, "notification policy named %s already exists", policy.Name); e != nil {
+			w.SendConflictError(e)
+			return
+		}
+
 		w.SendInternalServerError(fmt.Errorf("failed to update the notification policy: %v", err))
 		return
 	}
