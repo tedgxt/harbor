@@ -51,10 +51,10 @@ func TestCreatePolicy(t *testing.T) {
 	mockController := &mocks.APIController{}
 	mockController.On("CreateRetention", mock.AnythingOfType("*policy.Metadata")).Return(int64(1), nil)
 
-	controller := retentionController
-	retentionController = mockController
+	controller := RetentionController
+	RetentionController = mockController
 	defer func() {
-		retentionController = controller
+		RetentionController = controller
 	}()
 
 	p1 := &policy.Metadata{
@@ -305,10 +305,10 @@ func TestPolicy(t *testing.T) {
 	mockController.On("ListRetentionExecs", mock.AnythingOfType("int64"), mock.AnythingOfType("*q.Query")).Return(nil, nil)
 	mockController.On("GetTotalOfRetentionExecs", mock.AnythingOfType("int64")).Return(int64(0), nil)
 
-	controller := retentionController
-	retentionController = mockController
+	controller := RetentionController
+	RetentionController = mockController
 	defer func() {
-		retentionController = controller
+		RetentionController = controller
 	}()
 
 	cases := []*codeCheckingCase{

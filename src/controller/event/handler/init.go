@@ -10,6 +10,7 @@ import (
 	"github.com/goharbor/harbor/src/controller/event/handler/webhook/chart"
 	"github.com/goharbor/harbor/src/controller/event/handler/webhook/quota"
 	"github.com/goharbor/harbor/src/controller/event/handler/webhook/scan"
+	"github.com/goharbor/harbor/src/core/api"
 	"github.com/goharbor/harbor/src/lib/orm"
 	"github.com/goharbor/harbor/src/pkg/notifier"
 )
@@ -28,6 +29,7 @@ func init() {
 	notifier.Subscribe(event.TopicScanningCompleted, &scan.Handler{})
 	notifier.Subscribe(event.TopicDeleteArtifact, &scan.DelArtHandler{})
 	notifier.Subscribe(event.TopicReplication, &artifact.ReplicationHandler{})
+	notifier.Subscribe(event.TopicTagRetention, &artifact.RetentionHandler{RetentionCtl: api.GetRetentionController()})
 
 	// replication
 	notifier.Subscribe(event.TopicPushArtifact, &replication.Handler{})
